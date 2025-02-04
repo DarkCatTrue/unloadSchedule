@@ -28,10 +28,12 @@
         <TextBlock Grid.Row="3" Text="ip" TextAlignment="Center" Foreground="White" Margin="0,4,0,21" Grid.RowSpan="2"/>
         <TextBlock Grid.Row="4" Text="Логин" TextAlignment="Center" Foreground="White" Margin="0,4,0,21" Grid.RowSpan="2"/>
         <TextBlock Grid.Row="5" Text="Пароль" TextAlignment="Center" Foreground="White" Margin="0,4,0,41" Grid.RowSpan="2"/>
-        <TextBox x:Name="pathBox" Grid.Column="1" Grid.Row="2" TextAlignment="Center" Foreground="White"/>
-        <TextBox x:Name="ipBox" Grid.Column="1" Grid.Row="3" TextAlignment="Center" Foreground="White"/>
-        <TextBox x:Name="loginBox" Grid.Column="1" Grid.Row="4" TextAlignment="Center" Foreground="White"/>
-        <PasswordBox x:Name="passwordBox" Grid.Column="1" Grid.Row="5" HorizontalContentAlignment="Center" Foreground="White" PasswordChar="*"/>
-        <Button x:Name="saveBtn" Grid.Row="6" Grid.ColumnSpan="2" Content="Сохранить" VerticalAlignment="Center"/>
+        <TextBox x:Name="pathBox" Grid.Column="1" Grid.Row="2" TextAlignment="Left" Foreground="White"/>
+        <TextBox x:Name="ipBox" Grid.Column="1" Grid.Row="3" TextAlignment="Left" Foreground="White"/>
+        <TextBox x:Name="loginBox" Grid.Column="1" Grid.Row="4" TextAlignment="Left" Foreground="White"/>
+        <PasswordBox x:Name="passwordBox" Grid.Column="1" Grid.Row="5" HorizontalContentAlignment="Left" Foreground="White" PasswordChar="*" PasswordChanged="passwordBox_PasswordChanged" Visibility="Visible" Width="275" HorizontalAlignment="Left"/>
+        <TextBox x:Name="textBox" Grid.Column="1" Grid.Row="5" HorizontalContentAlignment="Left" Foreground="White" Width="275" HorizontalAlignment="Left" Visibility="Collapsed" IsReadOnly="True"/>
+        <Image x:Name="PassIcon" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Right" Width="25" Source="/Icons/HiddenPassBtn.png" RenderOptions.BitmapScalingMode="HighQuality" Margin="0 4 0 41" Grid.RowSpan="2" MouseDown="PassIcon_MouseDown"/>
+            <Button x:Name="saveBtn" Grid.Row="6" Grid.ColumnSpan="2" Content="Сохранить" VerticalAlignment="Center" Click="saveBtn_Click"/>
     </Grid>
 </Page>

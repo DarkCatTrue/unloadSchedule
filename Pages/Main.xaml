@@ -23,6 +23,7 @@
             <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <TextBlock x:Name="unloadName" Grid.ColumnSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
         <Button x:Name="settingsBtn" Grid.ColumnSpan="4" Height="Auto" Width="Auto" Grid.Row="1" Content="Настройки" Margin="0,8,0,5" Click="settingsBtn_Click"/>
         <RadioButton x:Name="partialUnload" Grid.Row="1" Content="Частичная выгрузка" IsChecked="True" Foreground="White" Margin="0,40,0,12" Grid.RowSpan="2"/>
         <RadioButton x:Name="fullUnload" Grid.Column="1" Grid.Row="1" Content="Полная выгрузка" IsChecked="False" Foreground="White" Margin="0,40,0,12" Grid.RowSpan="2"/>
@@ -35,6 +36,10 @@
         <ProgressBar x:Name="progressBar" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,30,35"/>
         <TextBlock x:Name="percentCount" Grid.Row="3" Grid.Column="1" Text="0%" TextAlignment="Center" Foreground="White" Margin="120,34,0,4" Grid.RowSpan="2"/>
         <TextBlock x:Name="latestTime" Grid.Row="4" Grid.Column="3" Text="Прошло времени:" TextAlignment="Center" Foreground="White" Margin="0,0,0,25"/>
+        <TextBlock x:Name="unloadList" Grid.Row="5" Grid.Column="0" Text="Запланировано:" Foreground="White" HorizontalAlignment="Center" Height="20" VerticalAlignment="Center" Visibility="Collapsed"/>
+        <TextBlock x:Name="FirstList" Grid.Row="5" Grid.Column="1" Text="1." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="Collapsed"/>
+        <TextBlock x:Name="SecondList" Grid.Row="5" Grid.Column="2" Text="2." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="Collapsed"/>
+        <TextBlock x:Name="ThirdList" Grid.Row="5" Grid.Column="3" Text="3." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="Collapsed"/>
         <Frame x:Name="settingsFrame" Panel.ZIndex="100" Height="100"/>
     </Grid>
 </Page>
