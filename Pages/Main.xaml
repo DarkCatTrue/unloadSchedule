@@ -31,7 +31,7 @@
         <ToggleButton  x:Name="scheduledUnload" Grid.Column="2" Grid.Row="1" Margin="106,38,10,6" Grid.RowSpan="2" Checked="scheduledUnload_Checked" Unchecked="scheduledUnload_Unchecked"/>
         <DatePicker x:Name="datePicker" Grid.Column="3" Grid.Row="2" IsEnabled="False" Language="Ru" Foreground="White" Margin="70,0,0,13"/>
         <md:TimePicker x:Name="timeReserv" Grid.Column="3" Grid.Row="2" IsEnabled="False" Is24Hours="True"  Foreground="White" Margin="0,0,85,13"/>
-        <Button x:Name="unloadBtn" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="2" Content="Начать" VerticalAlignment="Top" Margin="0,29,0,0" Grid.RowSpan="2"/>
+        <Button x:Name="unloadBtn" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="2" Content="Начать" VerticalAlignment="Top" Margin="0,29,0,0" Grid.RowSpan="2" Click="unloadBtn_Click"/>
         <TextBlock x:Name="latestFile" Grid.Row="4" Grid.Column="2" Text="Текущий файл:" TextAlignment="Center" Foreground="White" VerticalAlignment="Top"/>
         <ProgressBar x:Name="progressBar" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,30,35"/>
         <TextBlock x:Name="percentCount" Grid.Row="3" Grid.Column="1" Text="0%" TextAlignment="Center" Foreground="White" Margin="120,34,0,4" Grid.RowSpan="2"/>

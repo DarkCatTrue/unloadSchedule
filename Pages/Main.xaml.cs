@@ -1,5 +1,9 @@
-﻿using System.Windows;
+﻿using Newtonsoft.Json;
+using System.IO;
+using System.Windows;
 using System.Windows.Controls;
+using unloadSchedule.Classes;
+using static MaterialDesignThemes.Wpf.Theme;
 
 namespace unloadSchedule
 {
@@ -8,15 +12,28 @@ namespace unloadSchedule
     /// </summary>
     public partial class Main : Page
     {
+        string filepath = @"Jsons\configuration.json";
+        FtpUnload ftpUnload = new FtpUnload();
         public Main()
         {
             InitializeComponent();
         }
 
+        private async void unloadBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string jsonFile = File.ReadAllText(filepath);
+            dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
+            string path = json.SchedulePath;
+            string ip = json.Ip;
+            string login = json.Login;
+            string password = json.Password;
+            await ftpUnload.DefaultUnload(path, ip, login, password, "*.htm");
+        }
+
         private void settingsBtn_Click(object sender, RoutedEventArgs e)
         {
-           Page settings = new settingsPage();
-           MainWindow.pageManager.ChangePage(settings);
+            Page settings = new settingsPage();
+            MainWindow.pageManager.ChangePage(settings);
         }
 
         private void scheduledUnload_Checked(object sender, RoutedEventArgs e)
