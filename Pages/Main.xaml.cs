@@ -25,8 +25,11 @@ namespace unloadSchedule
             {
                 timeReserv.IsEnabled = true;
                 datePicker.IsEnabled = true;
+                unloadList.Visibility = Visibility.Visible;
+                FirstList.Visibility = Visibility.Visible;
+                SecondList.Visibility = Visibility.Visible;
+                ThirdList.Visibility = Visibility.Visible;
             }
-
         }
 
         private void scheduledUnload_Unchecked(object sender, RoutedEventArgs e)
@@ -37,6 +40,10 @@ namespace unloadSchedule
                 datePicker.IsEnabled = false;
                 timeReserv.Text = string.Empty;
                 datePicker.Text = string.Empty;
+                unloadList.Visibility = Visibility.Collapsed;
+                FirstList.Visibility = Visibility.Collapsed;
+                SecondList.Visibility = Visibility.Collapsed;
+                ThirdList.Visibility = Visibility.Collapsed;
             }
         }
     }

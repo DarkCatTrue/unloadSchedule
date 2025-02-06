@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.IO;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -11,49 +13,61 @@ namespace unloadSchedule
     public partial class settingsPage : Page
     {
         ImageSourceConverter imgs = new ImageSourceConverter();
-
+        string filepath = @"Jsons\configuration.json";
         public settingsPage()
         {
             InitializeComponent();
+            ReaderConfiguration();
         }
 
-        private void mainMenu_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void mainMenu_Click(object sender, RoutedEventArgs e)
         {
             Page main = new Main();
             MainWindow.pageManager.ChangePage(main);
         }
 
+        public void ReaderConfiguration()
+        {
+            string jsonFile = File.ReadAllText(filepath);
+            dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
+            pathBox.Text = json.SchedulePath;
+            ipBox.Text = json.Ip;
+            loginBox.Text = json.Login;
+            passwordBox.Password = json.Password;
+        }
+
         private void PassIcon_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (textBox.Visibility == System.Windows.Visibility.Visible)
+            if (textBox.Visibility == Visibility.Visible)
             {
-                textBox.Visibility = System.Windows.Visibility.Collapsed;
-                passwordBox.Visibility = System.Windows.Visibility.Visible;
+                textBox.Visibility = Visibility.Collapsed;
+                passwordBox.Visibility = Visibility.Visible;
                 PassIcon.SetValue(Image.SourceProperty, imgs.ConvertFromString("pack://application:,,,/Icons/HiddenPassBtn.png"));
             }
             else
             {
-                passwordBox.Visibility = System.Windows.Visibility.Collapsed;
-                textBox.Visibility = System.Windows.Visibility.Visible;
+                passwordBox.Visibility = Visibility.Collapsed;
+                textBox.Visibility = Visibility.Visible;
                 PassIcon.SetValue(Image.SourceProperty, imgs.ConvertFromString("pack://application:,,,/Icons/showPassBtn.png"));
             }
         }
 
-        private void passwordBox_PasswordChanged(object sender, System.Windows.RoutedEventArgs e)
+        private void passwordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             textBox.Text = passwordBox.Password;
         }
 
-        private void saveBtn_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void saveBtn_Click(object sender, RoutedEventArgs e)
         {
-            string filepath = @"\configuration.json";
             string path = pathBox.Text;
+            path = path.Replace(@"""", "");
             string ip = ipBox.Text;
             string login = loginBox.Text;
             string password = passwordBox.Password;
             JsonConfiguration configuration = new JsonConfiguration(path, ip, login, password);
             string json = JsonConvert.SerializeObject(configuration);
             File.WriteAllText(filepath, json);
+            MessageBox.Show("Вы успешно сохранили конфигурацию.", "Сохранение конфигурации", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

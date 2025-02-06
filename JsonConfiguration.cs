@@ -2,16 +2,26 @@
 {
     public class JsonConfiguration
     {
-        public string schedulePath { get; set; }
+        public string SchedulePath { get; set; }
         public string Ip { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
-        public JsonConfiguration(string path, string ip, string login, string password)
+        public JsonConfiguration(string schedulePath, string ip, string login, string password)
         {
-            schedulePath = path;
+            SchedulePath = schedulePath;
             Ip = ip;
             Login = login;
             Password = password;
+        }
+    }
+    public class CurrentTask
+    {
+        public string ScheduleDate { get; set; }
+        public string CurrentFile { get; set; }
+        public CurrentTask(string scheduleDate, string currentFile)
+        {
+            ScheduleDate = scheduleDate;
+            CurrentFile = currentFile;
         }
     }
 
