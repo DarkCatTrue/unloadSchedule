@@ -28,6 +28,7 @@ namespace unloadSchedule
             string login = json.Login;
             string password = json.Password;
             await ftpUnload.DefaultUnload(path, ip, login, password, "*.htm");
+            latestFile.Text = ftpUnload.ReadCurrentJson();
         }
 
         private void settingsBtn_Click(object sender, RoutedEventArgs e)
