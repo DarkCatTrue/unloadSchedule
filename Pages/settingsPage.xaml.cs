@@ -12,6 +12,7 @@ namespace unloadSchedule
     public partial class settingsPage : Page
     {
         ImageSourceConverter imgs = new ImageSourceConverter();
+        JsonConfiguration jsonConfiguration;
         string filepath = @"Jsons\configuration.json";
         public settingsPage()
         {
@@ -29,11 +30,16 @@ namespace unloadSchedule
         {
             string jsonFile = File.ReadAllText(filepath);
             dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
-            pathBox.Text = json.SchedulePath;
-            ipBox.Text = json.Ip;
-            loginBox.Text = json.Login;
-            passwordBox.Password = json.Password;
+            try
+            {
+                pathBox.Text = json.SchedulePath;
+                ipBox.Text = json.Ip;
+                loginBox.Text = json.Login;
+                passwordBox.Password = json.Password;
+            }
+            catch { }
         }
+
 
         private void PassIcon_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -63,9 +69,12 @@ namespace unloadSchedule
             string ip = ipBox.Text;
             string login = loginBox.Text;
             string password = passwordBox.Password;
-            JsonConfiguration configuration = new JsonConfiguration(path, ip, login, password);
-            string json = JsonConvert.SerializeObject(configuration);
-            File.WriteAllText(filepath, json);
+            try
+            {
+                jsonConfiguration.SaveConfiguration(path, ip, login, password);
+            }
+            catch { MessageBox.Show("Все поля должны быть заполнены.", "Сохранение конфигурации", MessageBoxButton.OK, MessageBoxImage.Error); }
+
             MessageBox.Show("Вы успешно сохранили конфигурацию.", "Сохранение конфигурации", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }

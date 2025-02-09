@@ -92,6 +92,7 @@
     </ApplicationDefinition>
     <Compile Include="Classes\FtpUnload.cs" />
     <Compile Include="Classes\PageManager.cs" />
+    <Compile Include="Classes\CurrentTaskJson.cs" />
     <Compile Include="Pages\Main.xaml.cs">
       <DependentUpon>Main.xaml</DependentUpon>
     </Compile>
