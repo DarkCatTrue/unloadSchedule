@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace unloadSchedule
+namespace unloadSchedule.MVVM.Model
 {
     public class CurrentTaskJson
     {
@@ -14,5 +17,4 @@ namespace unloadSchedule
             CurrentFile = currentFile;
         }
     }
-
 }

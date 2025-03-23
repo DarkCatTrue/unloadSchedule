@@ -34,6 +34,6 @@
         <PasswordBox x:Name="passwordBox" Grid.Column="1" Grid.Row="5" HorizontalContentAlignment="Left" Foreground="White" PasswordChar="*" PasswordChanged="passwordBox_PasswordChanged" Visibility="Visible" Width="275" HorizontalAlignment="Left"/>
         <TextBox x:Name="textBox" Grid.Column="1" Grid.Row="5" HorizontalContentAlignment="Left" Foreground="White" Width="275" HorizontalAlignment="Left" Visibility="Collapsed" IsReadOnly="True"/>
         <Image x:Name="PassIcon" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Right" Width="25" Source="/Icons/HiddenPassBtn.png" RenderOptions.BitmapScalingMode="HighQuality" Margin="0 4 0 41" Grid.RowSpan="2" MouseDown="PassIcon_MouseDown"/>
-            <Button x:Name="saveBtn" Grid.Row="6" Grid.ColumnSpan="2" Content="Сохранить" VerticalAlignment="Center" Click="saveBtn_Click"/>
+        <Button x:Name="saveBtn" Grid.Row="6" Grid.ColumnSpan="2" Content="Сохранить" VerticalAlignment="Center" Click="saveBtn_Click"/>
     </Grid>
 </Page>

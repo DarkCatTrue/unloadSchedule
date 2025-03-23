@@ -5,22 +5,25 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
+using unloadSchedule.MVVM.Model;
 namespace unloadSchedule.Classes
 {
     public class FtpUnload
     {
-        static string filepath = @"Jsons\currentTask.json";
+        static string filecrnt = @"Jsons\currentTask.json";
+        static string filepath = @"Jsons\configuration.json";
+
         public event Action<string> OnFileUploaded;
+
         public async Task DefaultUnload(string SchedulePath, string Ip, string Login, string Password, string Mask)
         {
 
             string[] Files = Directory.GetFiles(SchedulePath, Mask);
-           
+
             string lastUploadedFile = ReadCurrentJson();
-           
+
             bool startUploading = string.IsNullOrEmpty(lastUploadedFile);
-           
+
             bool fileFound = false;
 
             using (var Ftp = new AsyncFtpClient(Ip, Login, Password))
@@ -40,7 +43,6 @@ namespace unloadSchedule.Classes
                             }
                             continue;
                         }
-
                         try
                         {
                             await Ftp.UploadFile(File, $"/{Path.GetFileName(File)}", FtpRemoteExists.Overwrite, false, FtpVerify.None);
@@ -67,18 +69,18 @@ namespace unloadSchedule.Classes
                 }
             }
             MessageBox.Show("Выгрузка всех файлов завершилась!", "Состояние загрузки", MessageBoxButton.OK, MessageBoxImage.Information);
-        }     
+        }
         public void SaveCurrentJson(string FileName)
         {
             CurrentTaskJson crnt = new CurrentTaskJson(null, FileName);
             string json = JsonConvert.SerializeObject(crnt);
-            File.WriteAllText(filepath, json);
+            File.WriteAllText(filecrnt, json);
             string LoadedFile = Path.GetFileName(FileName);
             OnFileUploaded?.Invoke(LoadedFile);
         }
         public string ReadCurrentJson()
         {
-            string jsonFile = File.ReadAllText(filepath);
+            string jsonFile = File.ReadAllText(filecrnt);
             dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
             try
             {
@@ -91,6 +93,16 @@ namespace unloadSchedule.Classes
                 { return FileName; }
             }
             catch { return string.Empty; }
+        }
+        public async Task StartDefaultUpload()
+        {
+            string jsonFile = File.ReadAllText(filepath);
+            dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
+            string path = json.SchedulePath;
+            string ip = json.Ip;
+            string login = json.Login;
+            string password = json.Password;
+            await DefaultUnload(path, ip, login, password, "*.htm");
         }
     }
 }

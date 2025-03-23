@@ -1,12 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
-using unloadSchedule.Classes;
-using static MaterialDesignThemes.Wpf.Theme;
 
 namespace unloadSchedule
 {
@@ -15,27 +8,10 @@ namespace unloadSchedule
     /// </summary>
     public partial class Main : Page
     {
-        FtpUnload ftpUnload = new FtpUnload();
-
-        DispatcherTimer timer = new DispatcherTimer();
-
-        string filepath = @"Jsons\configuration.json";
         public Main()
         {
             InitializeComponent();
-            ftpUnload.OnFileUploaded += GetLoadFile;
-            timer.Tick += Timer_tick;
-        }
-
-        private async void unloadBtn_Click(object sender, RoutedEventArgs e)
-        {
-            string jsonFile = File.ReadAllText(filepath);
-            dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
-            string path = json.SchedulePath;
-            string ip = json.Ip;
-            string login = json.Login;
-            string password = json.Password;
-            await ftpUnload.DefaultUnload(path, ip, login, password, "*.htm");
+            DataContext = new ViewModel();
         }
 
         private void settingsBtn_Click(object sender, RoutedEventArgs e)
@@ -70,14 +46,6 @@ namespace unloadSchedule
                 SecondList.Visibility = Visibility.Collapsed;
                 ThirdList.Visibility = Visibility.Collapsed;
             }
-        }
-        public void GetLoadFile(string FileName)
-        {
-            latestFile.Text = "Текущий файл: " + FileName;
-        }
-        private void Timer_tick(object sender, EventArgs e)
-        {
-            latestTime.Text = "Прошло времени: " + (DateTime.Now - DateTime.Now).ToString(@"mm\:ss");
         }
     }
 }

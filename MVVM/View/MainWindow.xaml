@@ -10,6 +10,6 @@
     <Grid x:Name="ToolBar" Background="Transparent" MouseDown="ToolBar_MouseDown">
         <Image Margin="563,-2,3,260" x:Name="closeBtn" Source="/Icons/Знак_закрыть.png"  Panel.ZIndex="10" MouseDown="closeBtn_MouseDown" RenderOptions.BitmapScalingMode="HighQuality"/>
         <Image Margin="524,-4,42,258" x:Name="colapseBtn" Source="/Icons/Знак_свернуть.png" Panel.ZIndex="10" MouseDown="colapseBtn_MouseDown" RenderOptions.BitmapScalingMode="HighQuality"/>
-        <Frame Source="/Pages/Main.xaml" x:Name="mainFrame" Panel.ZIndex="1" Margin="-2,-5,0,0" NavigationUIVisibility="Hidden"/>
+        <Frame Source="/MVVM/View/Main.xaml" x:Name="mainFrame" Panel.ZIndex="1" Margin="-2,-5,0,0" NavigationUIVisibility="Hidden"/>
     </Grid>
 </Window>

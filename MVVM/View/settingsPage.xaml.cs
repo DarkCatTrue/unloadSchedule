@@ -12,7 +12,6 @@ namespace unloadSchedule
     public partial class settingsPage : Page
     {
         ImageSourceConverter imgs = new ImageSourceConverter();
-        JsonConfiguration jsonConfiguration;
         string filepath = @"Jsons\configuration.json";
         public settingsPage()
         {
@@ -69,6 +68,7 @@ namespace unloadSchedule
             string ip = ipBox.Text;
             string login = loginBox.Text;
             string password = passwordBox.Password;
+            JsonConfiguration jsonConfiguration = new JsonConfiguration(path, ip, login, password);
             try
             {
                 jsonConfiguration.SaveConfiguration(path, ip, login, password);
