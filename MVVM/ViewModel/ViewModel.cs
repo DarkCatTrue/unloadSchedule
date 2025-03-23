@@ -3,13 +3,20 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using unloadSchedule;
 using unloadSchedule.Classes;
+using unloadSchedule.MVVM.ViewModel;
 
 public class ViewModel : INotifyPropertyChanged
 {
+    private CommandHandler _commandHandler;
+    public ICommand GotoSettingsCommand => _commandHandler.GotoSettingsCommand;
+    public ICommand GotoMainCommand => _commandHandler.GotoMainCommand;
     public ICommand UploadCommand { get; set; }
+
     private string _currentFile;
     private string _elapsedTime;
 
@@ -26,7 +33,6 @@ public class ViewModel : INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
-
     protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -41,6 +47,7 @@ public class ViewModel : INotifyPropertyChanged
         _timer.Interval = TimeSpan.FromSeconds(1);
         _timer.Tick += TimerTick;
         UploadCommand = new RelayCommand(async () => await StartUploadAsync());
+        _commandHandler = new CommandHandler();
     }
 
     public async Task StartUploadAsync()

@@ -24,7 +24,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <TextBlock x:Name="unloadName" Grid.ColumnSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
-        <Button x:Name="settingsBtn" Grid.ColumnSpan="4" Height="Auto" Width="Auto" Grid.Row="1" Content="Настройки" Margin="0,8,0,5" Click="settingsBtn_Click"/>
+        <Button x:Name="settingsBtn" Grid.ColumnSpan="4" Height="Auto" Width="Auto" Grid.Row="1" Content="Настройки" Margin="0,8,0,5" Command="{Binding GotoSettingsCommand}"/>
         <RadioButton x:Name="partialUnload" Grid.Row="1" Content="Выгрузка 1 день" IsChecked="True" Foreground="White" Margin="0,43,0,9" Grid.RowSpan="2"/>
         <RadioButton x:Name="fullUnload" Grid.Column="1" Grid.Row="1" Content="Полная выгрузка" IsChecked="False" Foreground="White" Margin="0,43,0,9" Grid.RowSpan="2"/>
         <TextBlock Grid.Row="2" Grid.Column="2" Text="Запланировать" Margin="5,6,55,11" Foreground="White"/>

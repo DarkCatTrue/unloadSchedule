@@ -23,7 +23,7 @@
             <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Button x:Name="mainMenu" Grid.ColumnSpan="2" Grid.Row="1" Content="Основное меню" VerticalAlignment="Center" Click="mainMenu_Click"/>
+        <Button x:Name="mainMenu" Grid.ColumnSpan="2" Grid.Row="1" Content="Основное меню" Command="{Binding GotoMainCommand}" VerticalAlignment="Center"/>
         <TextBlock Grid.Row="2" Text="Путь к папке с расписанием" TextAlignment="Center" Foreground="White" Margin="0,4,0,21" Grid.RowSpan="2"/>
         <TextBlock Grid.Row="3" Text="ip" TextAlignment="Center" Foreground="White" Margin="0,4,0,21" Grid.RowSpan="2"/>
         <TextBlock Grid.Row="4" Text="Логин" TextAlignment="Center" Foreground="White" Margin="0,4,0,21" Grid.RowSpan="2"/>

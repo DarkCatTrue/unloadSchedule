@@ -14,12 +14,6 @@ namespace unloadSchedule
             DataContext = new ViewModel();
         }
 
-        private void settingsBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Page settings = new settingsPage();
-            MainWindow.pageManager.ChangePage(settings);
-        }
-
         private void scheduledUnload_Checked(object sender, RoutedEventArgs e)
         {
             if (scheduledUnload.IsChecked == true)

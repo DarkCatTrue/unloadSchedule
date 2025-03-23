@@ -17,12 +17,7 @@ namespace unloadSchedule
         {
             InitializeComponent();
             ReaderConfiguration();
-        }
-
-        private void mainMenu_Click(object sender, RoutedEventArgs e)
-        {
-            Page main = new Main();
-            MainWindow.pageManager.ChangePage(main);
+            DataContext = new ViewModel();
         }
 
         public void ReaderConfiguration()
