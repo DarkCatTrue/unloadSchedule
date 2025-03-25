@@ -91,7 +91,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Classes\FtpUnload.cs" />
-    <Compile Include="Classes\JsonHandler.cs" />
     <Compile Include="Classes\PageManager.cs" />
     <Compile Include="MVVM\Model\CurrentTaskJson.cs" />
     <Compile Include="MVVM\ViewModel\CommandHandler.cs" />
