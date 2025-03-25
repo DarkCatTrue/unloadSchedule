@@ -14,6 +14,7 @@ namespace unloadSchedule.MVVM.ViewModel
     {
         public ICommand GotoSettingsCommand { get; set; }
         public ICommand GotoMainCommand {  get; set; }
+
         public CommandHandler()
         {
             GotoSettingsCommand = new RelayCommand(SettingsPage);
