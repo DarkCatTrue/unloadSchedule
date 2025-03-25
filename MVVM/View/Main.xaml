@@ -25,8 +25,8 @@
         </Grid.RowDefinitions>
         <TextBlock x:Name="unloadName" Grid.ColumnSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
         <Button x:Name="settingsBtn" Grid.ColumnSpan="4" Height="Auto" Width="Auto" Grid.Row="1" Content="Настройки" Margin="0,8,0,5" Command="{Binding GotoSettingsCommand}"/>
-        <RadioButton x:Name="partialUnload" Grid.Row="1" Content="Выгрузка 1 день" IsChecked="True" Foreground="White" Margin="0,43,0,9" Grid.RowSpan="2"/>
-        <RadioButton x:Name="fullUnload" Grid.Column="1" Grid.Row="1" Content="Полная выгрузка" IsChecked="False" Foreground="White" Margin="0,43,0,9" Grid.RowSpan="2"/>
+        <RadioButton x:Name="partialUnload" Grid.Row="1" Content="Выгрузка 1 день" IsChecked="{Binding unloadTomorrow}" Foreground="White" Margin="0,43,0,9" Grid.RowSpan="2"/>
+        <RadioButton x:Name="fullUnload" Grid.Column="1" Grid.Row="1" Content="Полная выгрузка" IsChecked="{Binding unloadFull}" Foreground="White" Margin="0,43,0,9" Grid.RowSpan="2"/>
         <TextBlock Grid.Row="2" Grid.Column="2" Text="Запланировать" Margin="5,6,55,11" Foreground="White"/>
         <ToggleButton  x:Name="scheduledUnload" Grid.Column="2" Grid.Row="1" Margin="106,42,10,2" Grid.RowSpan="2" Checked="scheduledUnload_Checked" Unchecked="scheduledUnload_Unchecked"/>
         <DatePicker x:Name="datePicker" Grid.Column="3" Grid.Row="2" IsEnabled="False" Language="Ru" Foreground="White" Margin="70,0,0,13"/>
