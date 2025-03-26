@@ -17,10 +17,36 @@ public class ViewModel : INotifyPropertyChanged
     public ICommand UploadCommand { get; set; }
 
     private string _currentFile;
-    private string _elapsedTime;
-    private bool _unloadTomorrow;
-    private bool _unloadFull;
 
+    private string _elapsedTime;
+    
+    private bool _unloadTomorrow;
+    
+    private bool _unloadFull;
+    
+    private double _uploadProgress;
+
+    private string _uploadPercentage;
+    
+    public double UploadProgress
+    {
+        get => _uploadProgress;
+        set
+        {
+            _uploadProgress = value;
+            OnPropertyChanged();
+            UploadPercentage = $"{UploadProgress:F0}%";
+        }
+    }
+    public string UploadPercentage
+    {
+        get => _uploadPercentage;
+        set
+        {
+            _uploadPercentage = value;
+            OnPropertyChanged();
+        }
+    }
     public bool unloadTomorrow
     {
         get => _unloadTomorrow;
@@ -82,6 +108,7 @@ public class ViewModel : INotifyPropertyChanged
             case MessageBoxResult.Yes:
                 ftpUnload.SaveCurrentJson("ba.htm");
                 ftpUnload.OnFileUploaded += fileName => CurrentFile = fileName;
+                ftpUnload.ProgressChanged += progress => UploadProgress = progress;
                 _seconds = 0;
                 _timer.Start();
 
@@ -94,6 +121,7 @@ public class ViewModel : INotifyPropertyChanged
             case MessageBoxResult.No:
                 
                 ftpUnload.OnFileUploaded += fileName => CurrentFile = fileName;
+                ftpUnload.ProgressChanged += progress => UploadProgress = progress;
                 _seconds = 0;
                 _timer.Start();
                 await ftpUnload.StartDefaultUpload();
@@ -115,8 +143,9 @@ public class ViewModel : INotifyPropertyChanged
         switch (result)
         {
             case MessageBoxResult.Yes:
-                ftpUnload.SaveCurrentJson("cg.htm");
+                ftpUnload.SaveCurrentJson("ca.htm");
                 ftpUnload.OnFileUploaded += fileName => CurrentFile = fileName;
+                ftpUnload.ProgressChanged += progress => UploadProgress = progress;
                 _seconds = 0;
                 _timer.Start();
 
@@ -129,6 +158,7 @@ public class ViewModel : INotifyPropertyChanged
             case MessageBoxResult.No:
 
                 ftpUnload.OnFileUploaded += fileName => CurrentFile = fileName;
+                ftpUnload.ProgressChanged += progress => UploadProgress = progress;
                 _seconds = 0;
                 _timer.Start();
                 await ftpUnload.StartTommorowUpload();
@@ -141,6 +171,12 @@ public class ViewModel : INotifyPropertyChanged
                 return;
         }
     }
+
+    private void FtpUnload_ProgressChanged(double obj)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task CheckRadioButton()
     {
         if (unloadTomorrow)

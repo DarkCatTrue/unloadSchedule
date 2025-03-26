@@ -13,10 +13,14 @@ namespace unloadSchedule.Classes
     public class FtpUnload
     {
         static string filepath = @"Jsons\configuration.json";
+        
         static string filecrnt = @"Jsons\currentTask.json";
 
         JsonHandler jsHandler = new JsonHandler();
+        
         public event Action<string> OnFileUploaded;
+        
+        public event Action<double> ProgressChanged;
 
         public async Task DefaultUnload(string SchedulePath, string Ip, string Login, string Password, string Mask)
         {
@@ -28,6 +32,10 @@ namespace unloadSchedule.Classes
             bool startUploading = string.IsNullOrEmpty(lastUploadedFile);
 
             bool fileFound = false;
+            
+            double totalFiles = Files.Length;
+
+            double progress = 0;
 
             using (var Ftp = new AsyncFtpClient(Ip, Login, Password))
             {
@@ -50,6 +58,8 @@ namespace unloadSchedule.Classes
                         {
                             await Ftp.UploadFile(File, $"/{Path.GetFileName(File)}", FtpRemoteExists.Overwrite, false, FtpVerify.None);
                             SaveCurrentJson(File);
+                            progress += (1 / totalFiles) * 100;
+                            ProgressChanged?.Invoke(progress);
                         }
                         catch (FtpCommandException ex)
                         {
@@ -81,12 +91,17 @@ namespace unloadSchedule.Classes
                 Path.GetFileName(file).StartsWith("c", StringComparison.OrdinalIgnoreCase) ||
                 Path.GetFileName(file).StartsWith("h", StringComparison.OrdinalIgnoreCase) ||
                 Path.GetFileName(file).StartsWith("v", StringComparison.OrdinalIgnoreCase)).ToList();
-            
+
             string lastUploadedFile = jsHandler.ReadCurrentJson();
 
             bool startUploading = string.IsNullOrEmpty(lastUploadedFile);
 
             bool fileFound = false;
+
+            double totalFiles = filteredFiles.Count;
+            
+            double progress = 0;
+            
             using (var Ftp = new AsyncFtpClient(Ip, Login, Password))
             {
                 await Ftp.Connect();
@@ -106,6 +121,8 @@ namespace unloadSchedule.Classes
                     {
                         await Ftp.UploadFile(file, $"/{Path.GetFileName(file)}");
                         SaveCurrentJson(file);
+                        progress += (1 / totalFiles) * 100;
+                        ProgressChanged?.Invoke(progress);
                     }
                     catch (FtpCommandException ex)
                     {

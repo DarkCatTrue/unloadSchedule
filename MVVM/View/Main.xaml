@@ -33,8 +33,8 @@
         <md:TimePicker x:Name="timeReserv" Grid.Column="3" Grid.Row="2" IsEnabled="False" Is24Hours="True"  Foreground="White" Margin="0,0,85,13"/>
         <Button x:Name="unloadBtn" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="2" Command="{Binding UploadCommand}" Content="Начать" VerticalAlignment="Top" Margin="0,29,0,0" Grid.RowSpan="2"/>
         <TextBlock x:Name="latestFile" Grid.Row="4" Grid.Column="2" Text="{Binding CurrentFile}" TextAlignment="Center" Foreground="White" VerticalAlignment="Top"/>
-        <ProgressBar x:Name="progressBar" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,30,35"/>
-        <TextBlock x:Name="percentCount" Grid.Row="3" Grid.Column="1" Text="0%" TextAlignment="Center" Foreground="White" Margin="120,34,0,4" Grid.RowSpan="2"/>
+        <ProgressBar x:Name="progressBar" Value ="{Binding UploadProgress}" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,30,35"/>
+        <TextBlock x:Name="percentCount" Grid.Row="3" Grid.Column="1" Text="{Binding UploadPercentage}" TextAlignment="Center" Foreground="White" Margin="120,34,0,4" Grid.RowSpan="2"/>
         <TextBlock x:Name="latestTime" Grid.Row="4" Grid.Column="3" Text="{Binding ElapsedTime}" TextAlignment="Center" Foreground="White" Margin="0,0,0,25"/>
         <TextBlock x:Name="unloadList" Grid.Row="5" Grid.Column="0" Text="Запланировано:" Foreground="White" HorizontalAlignment="Center" Height="20" VerticalAlignment="Center" Visibility="Collapsed"/>
         <TextBlock x:Name="FirstList" Grid.Row="5" Grid.Column="1" Text="1." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="Collapsed"/>
