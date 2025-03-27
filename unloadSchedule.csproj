@@ -93,7 +93,9 @@
     <Compile Include="Classes\FtpUnload.cs" />
     <Compile Include="Classes\JsonHandler.cs" />
     <Compile Include="Classes\PageManager.cs" />
-    <Compile Include="MVVM\Model\CurrentTaskJson.cs" />
+    <Compile Include="MVVM\Model\AllUnload.cs" />
+    <Compile Include="MVVM\Model\ScheduleJson.cs" />
+    <Compile Include="MVVM\Model\OneDayUnload.cs" />
     <Compile Include="MVVM\ViewModel\CommandHandler.cs" />
     <Compile Include="MVVM\ViewModel\RelayCommand.cs" />
     <Compile Include="MVVM\ViewModel\ViewModel.cs" />

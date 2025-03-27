@@ -12,7 +12,9 @@ namespace unloadSchedule
 
         static string configJson = @"Jsons\configuration.json";
 
-        static string currentTaskJson = @"Jsons\currentTask.json";
+        static string filecrnt = @"Jsons\AllUnload.json";
+
+        static string filetmrw = @"Jsons\OneDayUnload.json";
 
         static string ScheduleFolders = "ScheduleFolders";
 
@@ -38,8 +40,11 @@ namespace unloadSchedule
             if (!File.Exists(configJson))
                 File.Create(configJson);
 
-            if (!File.Exists(currentTaskJson))
-                File.Create(currentTaskJson);
+            if (!File.Exists(filecrnt))
+                File.Create(filecrnt);
+
+            if (!File.Exists(filetmrw))
+                File.Create(filetmrw);
 
             if (!Directory.Exists(ScheduleFolders))
                 Directory.CreateDirectory(ScheduleFolders);

@@ -13,21 +13,28 @@ namespace unloadSchedule.Classes
     public class FtpUnload
     {
         static string filepath = @"Jsons\configuration.json";
-        
-        static string filecrnt = @"Jsons\currentTask.json";
+
+        static string filecrnt = @"Jsons\AllUnload.json";
+
+        static string filetmrw = @"Jsons\OneDayUnload.json";
 
         JsonHandler jsHandler = new JsonHandler();
         
-        public event Action<string> OnFileUploaded;
+        public event Action<string> OnDayUnload;
+
+        public event Action<string> OnAllUnload;
         
-        public event Action<double> ProgressChanged;
+        public event Action<double> OnDayProgress;
+        
+        public event Action<double> OnAllProgress;
 
         public async Task DefaultUnload(string SchedulePath, string Ip, string Login, string Password, string Mask)
         {
 
             string[] Files = Directory.GetFiles(SchedulePath, Mask);
 
-            string lastUploadedFile = jsHandler.ReadCurrentJson();
+            string lastUploadedFile = jsHandler.ReadCurrentFile();
+            double CurrentProgress = jsHandler.ReadCurrentProgress();
 
             bool startUploading = string.IsNullOrEmpty(lastUploadedFile);
 
@@ -50,6 +57,7 @@ namespace unloadSchedule.Classes
                             if (Path.GetFileName(File) == Path.GetFileName(lastUploadedFile))
                             {
                                 fileFound = true;
+                                progress = CurrentProgress;
                                 continue;
                             }
                             continue;
@@ -57,9 +65,8 @@ namespace unloadSchedule.Classes
                         try
                         {
                             await Ftp.UploadFile(File, $"/{Path.GetFileName(File)}", FtpRemoteExists.Overwrite, false, FtpVerify.None);
-                            SaveCurrentJson(File);
                             progress += (1 / totalFiles) * 100;
-                            ProgressChanged?.Invoke(progress);
+                            SaveAllUnloadJson(File, progress);
                         }
                         catch (FtpCommandException ex)
                         {
@@ -92,7 +99,8 @@ namespace unloadSchedule.Classes
                 Path.GetFileName(file).StartsWith("h", StringComparison.OrdinalIgnoreCase) ||
                 Path.GetFileName(file).StartsWith("v", StringComparison.OrdinalIgnoreCase)).ToList();
 
-            string lastUploadedFile = jsHandler.ReadCurrentJson();
+            string lastUploadedFile = jsHandler.ReadOneDayFile();
+            double CurrentProgress = jsHandler.ReadOneDayProgress();
 
             bool startUploading = string.IsNullOrEmpty(lastUploadedFile);
 
@@ -113,6 +121,7 @@ namespace unloadSchedule.Classes
                         if (Path.GetFileName(file) == Path.GetFileName(lastUploadedFile))
                         {
                             fileFound = true;
+                            progress = CurrentProgress;
                             continue;
                         }
                         continue;
@@ -120,9 +129,8 @@ namespace unloadSchedule.Classes
                     try
                     {
                         await Ftp.UploadFile(file, $"/{Path.GetFileName(file)}");
-                        SaveCurrentJson(file);
                         progress += (1 / totalFiles) * 100;
-                        ProgressChanged?.Invoke(progress);
+                        SaveOneDayJson(file, progress);
                     }
                     catch (FtpCommandException ex)
                     {
@@ -131,13 +139,23 @@ namespace unloadSchedule.Classes
                 }
             }
         }
-        public void SaveCurrentJson(string FileName)
+        public void SaveAllUnloadJson(string FileName, double progress)
         {
-            CurrentTaskJson crnt = new CurrentTaskJson(null, FileName);
+            AllUnload crnt = new AllUnload(FileName, progress);
             string json = JsonConvert.SerializeObject(crnt);
             File.WriteAllText(filecrnt, json);
             string LoadedFile = Path.GetFileName(FileName);
-            OnFileUploaded?.Invoke(LoadedFile);
+            OnAllUnload?.Invoke(LoadedFile);
+            OnAllProgress?.Invoke(progress);
+        }
+        public void SaveOneDayJson(string FileName, double progress)
+        {
+            OneDayUnload tmrw = new OneDayUnload(FileName, progress);
+            string json = JsonConvert.SerializeObject(tmrw);
+            File.WriteAllText(filetmrw, json);
+            string LoadedFile = Path.GetFileName(FileName);
+            OnDayUnload?.Invoke(LoadedFile);
+            OnDayProgress?.Invoke(progress);
         }
         public async Task StartDefaultUpload()
         {
