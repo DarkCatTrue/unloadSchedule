@@ -7,11 +7,18 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using unloadSchedule.Classes;
+using unloadSchedule.MVVM.Model;
 using unloadSchedule.MVVM.ViewModel;
 
 public class ViewModel : INotifyPropertyChanged
 {
+    FtpUnload ftpUnload = new FtpUnload();
+    JsonHandler jsonHandler = new JsonHandler();
+
+
     private CommandHandler _commandHandler;
+    private DispatcherTimer _timer;
+    private int _seconds;
     public ICommand GotoSettingsCommand => _commandHandler.GotoSettingsCommand;
     public ICommand GotoMainCommand => _commandHandler.GotoMainCommand;
     public ICommand UploadCommand { get; set; }
@@ -19,64 +26,41 @@ public class ViewModel : INotifyPropertyChanged
     private string _currentFile;
 
     private string _elapsedTime;
-    
+
     private bool _unloadTomorrow;
-    
+
     private bool _unloadFull;
-    
+
     private double _uploadProgress;
 
     private string _uploadPercentage;
-    
+
     public double UploadProgress
     {
-        get => _uploadProgress;
-        set
-        {
-            _uploadProgress = value;
-            OnPropertyChanged();
-            UploadPercentage = $"{UploadProgress:F0}%";
-        }
+        get => _uploadProgress; set { _uploadProgress = value; OnPropertyChanged(); UploadPercentage = $"{UploadProgress:F0}%"; }
     }
     public string UploadPercentage
     {
-        get => _uploadPercentage;
-        set
-        {
-            _uploadPercentage = value;
-            OnPropertyChanged();
-        }
+        get => _uploadPercentage; set { _uploadPercentage = value; OnPropertyChanged(); }
     }
     public bool unloadTomorrow
     {
-        get => _unloadTomorrow;
-        set
-        {
-            _unloadTomorrow = value;
-            OnPropertyChanged();
-        }
+        get => _unloadTomorrow; set { _unloadTomorrow = value; OnPropertyChanged(); }
     }
 
     public bool unloadFull
     {
-        get => _unloadFull;
-        set
-        {
-            _unloadFull = value;
-            OnPropertyChanged();
-        }
+        get => _unloadFull; set { _unloadFull = value; OnPropertyChanged(); }
     }
 
     public string CurrentFile
     {
-        get => _currentFile;
-        set { _currentFile = value; OnPropertyChanged(); }
+        get => _currentFile; set { _currentFile = value; OnPropertyChanged(); }
     }
 
     public string ElapsedTime
     {
-        get => _elapsedTime;
-        set { _elapsedTime = value; OnPropertyChanged(); }
+        get => _elapsedTime; set { _elapsedTime = value; OnPropertyChanged(); }
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
@@ -84,9 +68,6 @@ public class ViewModel : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-
-    private DispatcherTimer _timer;
-    private int _seconds;
 
     public ViewModel()
     {
@@ -99,20 +80,23 @@ public class ViewModel : INotifyPropertyChanged
 
     public async Task StartDefUploadAsync()
     {
-        FtpUnload ftpUnload = new FtpUnload();
-        JsonHandler jsonHandler = new JsonHandler();
+        Action<string> fileHandler = fileName => CurrentFile = fileName;
+        Action<double> progressHandler = progress => UploadProgress = progress;
+
+        ftpUnload.OnAllUnload += fileHandler;
+        ftpUnload.OnAllProgress += progressHandler;
+        _seconds = 0;
+
         MessageBoxResult result = MessageBox.Show("Хотите ли вы начать выгрузку заново?", "Подтверждение", MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
-        
+
         switch (result)
         {
             case MessageBoxResult.Yes:
-                ftpUnload.SaveAllUnloadJson("ba.htm", 0);
-                ftpUnload.OnAllUnload += fileName => CurrentFile = fileName;
-                ftpUnload.OnAllProgress += progress => UploadProgress = progress;
-                _seconds = 0;
+
                 _timer.Start();
 
-                await ftpUnload.StartDefaultUpload();
+                ftpUnload.SaveJson<AllUnload>("ba.htm", 0, @"Jsons\AllUnload.json", fileHandler, progressHandler);
+                await ftpUnload.StartUpload(false);
 
                 _timer.Stop();
                 MessageBox.Show("Выгрузка всех файлов завершилась!", "Состояние загрузки", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -120,11 +104,9 @@ public class ViewModel : INotifyPropertyChanged
 
             case MessageBoxResult.No:
 
-                ftpUnload.OnAllUnload += fileName => CurrentFile = fileName;
-                ftpUnload.OnAllProgress += progress => UploadProgress = progress;
-                _seconds = 0;
                 _timer.Start();
-                await ftpUnload.StartDefaultUpload();
+
+                await ftpUnload.StartUpload(false);
 
                 _timer.Stop();
                 MessageBox.Show("Выгрузка всех файлов завершилась!", "Состояние загрузки", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -136,31 +118,32 @@ public class ViewModel : INotifyPropertyChanged
     }
     public async Task StartTomUpload()
     {
-        FtpUnload ftpUnload = new FtpUnload();
-        JsonHandler jsonHandler = new JsonHandler();
+        Action<string> fileHandler = fileName => CurrentFile = fileName;
+        Action<double> progressHandler = progress => UploadProgress = progress;
+
+        ftpUnload.OnDayUnload += fileName => CurrentFile = fileName;
+        ftpUnload.OnDayProgress += progress => UploadProgress = progress;
+        _seconds = 0;
         MessageBoxResult result = MessageBox.Show("Хотите ли вы начать выгрузку заново?", "Подтверждение", MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
 
         switch (result)
         {
             case MessageBoxResult.Yes:
-                ftpUnload.SaveOneDayJson("ca.htm", 0);
-                ftpUnload.OnDayUnload += fileName => CurrentFile = fileName;
-                ftpUnload.OnDayProgress += progress => UploadProgress = progress;
-                _seconds = 0;
+
                 _timer.Start();
 
-                await ftpUnload.StartTommorowUpload();
+                ftpUnload.SaveJson<OneDayUnload>("ca.htm", 0, @"Jsons\OneDayUnload.json", fileHandler, progressHandler);
+                await ftpUnload.StartUpload(true);
 
                 _timer.Stop();
                 MessageBox.Show("Выгрузка всех файлов завершилась!", "Состояние загрузки", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
 
             case MessageBoxResult.No:
-                ftpUnload.OnDayUnload += fileName => CurrentFile = fileName;
-                ftpUnload.OnDayProgress += progress => UploadProgress = progress;
-                _seconds = 0;
+
                 _timer.Start();
-                await ftpUnload.StartTommorowUpload();
+
+                await ftpUnload.StartUpload(true);
 
                 _timer.Stop();
                 MessageBox.Show("Выгрузка всех файлов завершилась!", "Состояние загрузки", MessageBoxButton.OK, MessageBoxImage.Information);

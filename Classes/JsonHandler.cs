@@ -12,13 +12,9 @@ namespace unloadSchedule.Classes
 {
     public class JsonHandler
     {
-        static string filecrnt = @"Jsons\AllUnload.json";
-
-        static string filetmrw = @"Jsons\OneDayUnload.json";
-
-        public string ReadCurrentFile()
+        public string ReadFile(string path)
         {
-            string jsonFile = File.ReadAllText(filecrnt);
+            string jsonFile = File.ReadAllText(path);
             dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
             try
             {
@@ -32,41 +28,9 @@ namespace unloadSchedule.Classes
             }
             catch { return string.Empty; }
         }
-        public double ReadCurrentProgress()
+        public double ReadProgress(string path)
         {
-            string jsonFile = File.ReadAllText(filecrnt);
-            dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
-            try
-            {
-                double progress = json.CurrentProgress;
-                if (progress == 0)
-                {
-                    return progress = 0;
-                }
-                else
-                { return progress; }
-            }
-            catch { return 0; }
-        }
-        public string ReadOneDayFile()
-        {
-            string jsonFile = File.ReadAllText(filetmrw);
-            dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
-            try
-            {
-                string FileName = json.CurrentFile;
-                if (string.IsNullOrEmpty(FileName))
-                {
-                    return string.Empty;
-                }
-                else
-                { return FileName; }
-            }
-            catch { return string.Empty; }
-        }
-        public double ReadOneDayProgress()
-        {
-            string jsonFile = File.ReadAllText(filetmrw);
+            string jsonFile = File.ReadAllText(path);
             dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
             try
             {

@@ -19,69 +19,110 @@ namespace unloadSchedule.Classes
         static string filetmrw = @"Jsons\OneDayUnload.json";
 
         JsonHandler jsHandler = new JsonHandler();
-        
+
         public event Action<string> OnDayUnload;
 
         public event Action<string> OnAllUnload;
-        
+
         public event Action<double> OnDayProgress;
-        
+
         public event Action<double> OnAllProgress;
 
-        public async Task DefaultUnload(string SchedulePath, string Ip, string Login, string Password, string Mask)
+        public async Task UnloadFiles(string schedulePath, string ip, string login, string password, string mask, bool isTomorrowUnload = false)
         {
+            string jsonFile;
+            Action<string> onUnloadEvent;
+            Action<double> onProgressEvent;
 
-            string[] Files = Directory.GetFiles(SchedulePath, Mask);
+            if (isTomorrowUnload)
+            {
+                jsonFile = filetmrw;
+                onUnloadEvent = OnDayUnload;
+                onProgressEvent = OnDayProgress;
+            }
+            else
+            {
+                jsonFile = filecrnt;
+                onUnloadEvent = OnAllUnload;
+                onProgressEvent = OnAllProgress;
+            }
 
-            string lastUploadedFile = jsHandler.ReadCurrentFile();
-            double CurrentProgress = jsHandler.ReadCurrentProgress();
+            string[] allFiles = Directory.GetFiles(schedulePath, mask);
+            List<string> filesToUpload = new List<string>();
 
+            if (isTomorrowUnload)
+            {
+                foreach (string file in allFiles)
+                {
+                    string filename = Path.GetFileName(file);
+                    if (filename.StartsWith("c", StringComparison.OrdinalIgnoreCase) ||
+                        filename.StartsWith("h", StringComparison.OrdinalIgnoreCase) ||
+                        filename.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                    {
+                        filesToUpload.Add(file);
+                    }
+                }
+            }
+            else
+            {
+                filesToUpload.AddRange(allFiles);
+            }
+
+            string lastUploadedFile = jsHandler.ReadFile(jsonFile);
+            double currentProgress = jsHandler.ReadProgress(jsonFile);
             bool startUploading = string.IsNullOrEmpty(lastUploadedFile);
-
             bool fileFound = false;
-            
-            double totalFiles = Files.Length;
-
             double progress = 0;
 
-            using (var Ftp = new AsyncFtpClient(Ip, Login, Password))
+            using (var ftp = new AsyncFtpClient(ip, login, password))
             {
                 try
                 {
-                    await Ftp.Connect();
+                    await ftp.Connect();
 
-                    foreach (var File in Files)
+                    foreach (string file in filesToUpload)
                     {
                         if (!startUploading && !fileFound)
                         {
-                            if (Path.GetFileName(File) == Path.GetFileName(lastUploadedFile))
+                            if (Path.GetFileName(file) == Path.GetFileName(lastUploadedFile))
                             {
                                 fileFound = true;
-                                progress = CurrentProgress;
+                                progress = currentProgress;
                                 continue;
                             }
                             continue;
                         }
+
                         try
                         {
-                            await Ftp.UploadFile(File, $"/{Path.GetFileName(File)}", FtpRemoteExists.Overwrite, false, FtpVerify.None);
-                            progress += (1 / totalFiles) * 100;
-                            SaveAllUnloadJson(File, progress);
+                            await ftp.UploadFile(file, $"/{Path.GetFileName(file)}", FtpRemoteExists.Overwrite, false, FtpVerify.None);
+
+                            progress += (1.0 / filesToUpload.Count) * 100;
+
+                            if (isTomorrowUnload)
+                            {
+                                SaveJson<OneDayUnload>(file, progress, jsonFile, onUnloadEvent, onProgressEvent);
+                            }
+                            else
+                            {
+                                SaveJson<AllUnload>(file, progress, jsonFile, onUnloadEvent, onProgressEvent);
+                            }
                         }
                         catch (FtpCommandException ex)
                         {
-                            MessageBox.Show($"Ошибка во время загрузки файла '{File}': {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show($"Ошибка загрузки файла '{file}': {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Неизвестная ошибка при загрузке файла '{File}': {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show($"Неизвестная ошибка: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                     }
-                    await Ftp.Disconnect();
+
+                    await ftp.Disconnect();
                 }
                 catch (FtpCommandException ex)
                 {
-                    MessageBox.Show($"Ошибка подключения к FTP серверу: {ex.Message}", "Ошибка подключения", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Ошибка подключения к FTP: {ex.Message}", "Ошибка подключения", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)
                 {
@@ -89,75 +130,16 @@ namespace unloadSchedule.Classes
                 }
             }
         }
-
-        public async Task UnloadTomorrow(string SchedulePath, string Ip, string Login, string Password, string Mask)
+        public void SaveJson<T>(string fileName, double progress, string outputPath, Action<string> onUnloadEvent, Action<double> onProgressEvent)
         {
-            var files = Directory.GetFiles(SchedulePath);
-
-            var filteredFiles = files.Where(file =>
-                Path.GetFileName(file).StartsWith("c", StringComparison.OrdinalIgnoreCase) ||
-                Path.GetFileName(file).StartsWith("h", StringComparison.OrdinalIgnoreCase) ||
-                Path.GetFileName(file).StartsWith("v", StringComparison.OrdinalIgnoreCase)).ToList();
-
-            string lastUploadedFile = jsHandler.ReadOneDayFile();
-            double CurrentProgress = jsHandler.ReadOneDayProgress();
-
-            bool startUploading = string.IsNullOrEmpty(lastUploadedFile);
-
-            bool fileFound = false;
-
-            double totalFiles = filteredFiles.Count;
-            
-            double progress = 0;
-            
-            using (var Ftp = new AsyncFtpClient(Ip, Login, Password))
-            {
-                await Ftp.Connect();
-
-                foreach (var file in filteredFiles)
-                {
-                    if (!startUploading && !fileFound)
-                    {
-                        if (Path.GetFileName(file) == Path.GetFileName(lastUploadedFile))
-                        {
-                            fileFound = true;
-                            progress = CurrentProgress;
-                            continue;
-                        }
-                        continue;
-                    }
-                    try
-                    {
-                        await Ftp.UploadFile(file, $"/{Path.GetFileName(file)}");
-                        progress += (1 / totalFiles) * 100;
-                        SaveOneDayJson(file, progress);
-                    }
-                    catch (FtpCommandException ex)
-                    {
-                        MessageBox.Show($"Ошибка во время загрузки файла '{file}': {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
+            T data = (T)Activator.CreateInstance(typeof(T), fileName, progress);
+            string json = JsonConvert.SerializeObject(data);
+            File.WriteAllText(outputPath, json);
+            string loadedFile = Path.GetFileName(fileName);
+            onUnloadEvent?.Invoke(loadedFile);
+            onProgressEvent?.Invoke(progress);
         }
-        public void SaveAllUnloadJson(string FileName, double progress)
-        {
-            AllUnload crnt = new AllUnload(FileName, progress);
-            string json = JsonConvert.SerializeObject(crnt);
-            File.WriteAllText(filecrnt, json);
-            string LoadedFile = Path.GetFileName(FileName);
-            OnAllUnload?.Invoke(LoadedFile);
-            OnAllProgress?.Invoke(progress);
-        }
-        public void SaveOneDayJson(string FileName, double progress)
-        {
-            OneDayUnload tmrw = new OneDayUnload(FileName, progress);
-            string json = JsonConvert.SerializeObject(tmrw);
-            File.WriteAllText(filetmrw, json);
-            string LoadedFile = Path.GetFileName(FileName);
-            OnDayUnload?.Invoke(LoadedFile);
-            OnDayProgress?.Invoke(progress);
-        }
-        public async Task StartDefaultUpload()
+        public async Task StartUpload(bool isTomorrowUnload)
         {
             string jsonFile = File.ReadAllText(filepath);
             dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
@@ -165,17 +147,7 @@ namespace unloadSchedule.Classes
             string ip = json.Ip;
             string login = json.Login;
             string password = json.Password;
-            await DefaultUnload(path, ip, login, password, "*.htm");
-        }
-        public async Task StartTommorowUpload()
-        {
-            string jsonFile = File.ReadAllText(filepath);
-            dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
-            string path = json.SchedulePath;
-            string ip = json.Ip;
-            string login = json.Login;
-            string password = json.Password;
-            await UnloadTomorrow(path, ip, login, password, "*.htm");
+            await UnloadFiles(path, ip, login, password, "*.htm", isTomorrowUnload);
         }
     }
 }
