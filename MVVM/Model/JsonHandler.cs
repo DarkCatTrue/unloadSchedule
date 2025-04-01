@@ -44,5 +44,14 @@ namespace unloadSchedule.Classes
             }
             catch { return 0; }
         }
+        public void SaveJson<T>(string fileName, double progress, string outputPath, Action<string> onUnloadEvent, Action<double> onProgressEvent)
+        {
+            T data = (T)Activator.CreateInstance(typeof(T), fileName, progress);
+            string json = JsonConvert.SerializeObject(data);
+            File.WriteAllText(outputPath, json);
+            string loadedFile = Path.GetFileName(fileName);
+            onUnloadEvent?.Invoke(loadedFile);
+            onProgressEvent?.Invoke(progress);
+        }
     }
 }

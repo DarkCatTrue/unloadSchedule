@@ -16,6 +16,10 @@ public class ViewModel : INotifyPropertyChanged
     JsonHandler jsonHandler = new JsonHandler();
 
 
+    public string ConfigPath = AppSettings.ConfigPath;
+    public string AllUnldPath = AppSettings.AllUnldPath;
+    public string OneDayUnldPath = AppSettings.OneDayUnldPath;
+
     private CommandHandler _commandHandler;
     private DispatcherTimer _timer;
     private int _seconds;
@@ -95,7 +99,7 @@ public class ViewModel : INotifyPropertyChanged
 
                 _timer.Start();
 
-                ftpUnload.SaveJson<AllUnload>("ba.htm", 0, @"Jsons\AllUnload.json", fileHandler, progressHandler);
+                jsonHandler.SaveJson<AllUnload>("ba.htm", 0, AllUnldPath, fileHandler, progressHandler);
                 await ftpUnload.StartUpload(false);
 
                 _timer.Stop();
@@ -132,7 +136,7 @@ public class ViewModel : INotifyPropertyChanged
 
                 _timer.Start();
 
-                ftpUnload.SaveJson<OneDayUnload>("ca.htm", 0, @"Jsons\OneDayUnload.json", fileHandler, progressHandler);
+                jsonHandler.SaveJson<OneDayUnload>("ca.htm", 0, OneDayUnldPath, fileHandler, progressHandler);
                 await ftpUnload.StartUpload(true);
 
                 _timer.Stop();

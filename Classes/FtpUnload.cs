@@ -12,14 +12,12 @@ namespace unloadSchedule.Classes
 {
     public class FtpUnload
     {
-        static string filepath = @"Jsons\configuration.json";
-
-        static string filecrnt = @"Jsons\AllUnload.json";
-
-        static string filetmrw = @"Jsons\OneDayUnload.json";
-
         JsonHandler jsHandler = new JsonHandler();
 
+        string ConfigPath = AppSettings.ConfigPath;
+        string AllUnldPath = AppSettings.AllUnldPath;
+        string OneDayUnldPath = AppSettings.OneDayUnldPath;
+        string jsonFile;
         public event Action<string> OnDayUnload;
 
         public event Action<string> OnAllUnload;
@@ -30,19 +28,18 @@ namespace unloadSchedule.Classes
 
         public async Task UnloadFiles(string schedulePath, string ip, string login, string password, string mask, bool isTomorrowUnload = false)
         {
-            string jsonFile;
             Action<string> onUnloadEvent;
             Action<double> onProgressEvent;
 
             if (isTomorrowUnload)
             {
-                jsonFile = filetmrw;
+                jsonFile = OneDayUnldPath;
                 onUnloadEvent = OnDayUnload;
                 onProgressEvent = OnDayProgress;
             }
             else
             {
-                jsonFile = filecrnt;
+                jsonFile = AllUnldPath;
                 onUnloadEvent = OnAllUnload;
                 onProgressEvent = OnAllProgress;
             }
@@ -57,7 +54,8 @@ namespace unloadSchedule.Classes
                     string filename = Path.GetFileName(file);
                     if (filename.StartsWith("c", StringComparison.OrdinalIgnoreCase) ||
                         filename.StartsWith("h", StringComparison.OrdinalIgnoreCase) ||
-                        filename.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                        filename.StartsWith("v", StringComparison.OrdinalIgnoreCase) ||
+                        filename.StartsWith("j", StringComparison.OrdinalIgnoreCase))
                     {
                         filesToUpload.Add(file);
                     }
@@ -101,11 +99,11 @@ namespace unloadSchedule.Classes
 
                             if (isTomorrowUnload)
                             {
-                                SaveJson<OneDayUnload>(file, progress, jsonFile, onUnloadEvent, onProgressEvent);
+                                jsHandler.SaveJson<OneDayUnload>(file, progress, jsonFile, onUnloadEvent, onProgressEvent);
                             }
                             else
                             {
-                                SaveJson<AllUnload>(file, progress, jsonFile, onUnloadEvent, onProgressEvent);
+                                jsHandler.SaveJson<AllUnload>(file, progress, jsonFile, onUnloadEvent, onProgressEvent);
                             }
                         }
                         catch (FtpCommandException ex)
@@ -130,18 +128,9 @@ namespace unloadSchedule.Classes
                 }
             }
         }
-        public void SaveJson<T>(string fileName, double progress, string outputPath, Action<string> onUnloadEvent, Action<double> onProgressEvent)
-        {
-            T data = (T)Activator.CreateInstance(typeof(T), fileName, progress);
-            string json = JsonConvert.SerializeObject(data);
-            File.WriteAllText(outputPath, json);
-            string loadedFile = Path.GetFileName(fileName);
-            onUnloadEvent?.Invoke(loadedFile);
-            onProgressEvent?.Invoke(progress);
-        }
         public async Task StartUpload(bool isTomorrowUnload)
         {
-            string jsonFile = File.ReadAllText(filepath);
+            string jsonFile = File.ReadAllText(ConfigPath);
             dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
             string path = json.SchedulePath;
             string ip = json.Ip;

@@ -90,9 +90,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MVVM\Model\AppSettings.cs" />
     <Compile Include="Classes\FtpUnload.cs" />
-    <Compile Include="Classes\JsonHandler.cs" />
-    <Compile Include="Classes\PageManager.cs" />
+    <Compile Include="MVVM\Model\JsonHandler.cs" />
+    <Compile Include="MVVM\ViewModel\PageManager.cs" />
     <Compile Include="MVVM\Model\AllUnload.cs" />
     <Compile Include="MVVM\Model\ScheduleJson.cs" />
     <Compile Include="MVVM\Model\OneDayUnload.cs" />
@@ -105,7 +106,7 @@
     <Compile Include="MVVM\View\settingsPage.xaml.cs">
       <DependentUpon>settingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Classes\JsonConfiguration.cs" />
+    <Compile Include="MVVM\Model\JsonConfiguration.cs" />
     <Page Include="MVVM\View\Main.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

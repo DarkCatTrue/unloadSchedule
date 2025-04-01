@@ -1,12 +1,13 @@
 ﻿using Newtonsoft.Json;
 using System.IO;
 using System.Windows.Shapes;
+using unloadSchedule.Classes;
 
 namespace unloadSchedule
 {
     public class JsonConfiguration
     {
-        string filepath = @"Jsons\configuration.json";
+        string ConfigPath = AppSettings.ConfigPath;
         public string SchedulePath { get; set; }
         public string Ip { get; set; }
         public string Login { get; set; }
@@ -22,7 +23,7 @@ namespace unloadSchedule
         {
             JsonConfiguration configuration = new JsonConfiguration(path, ip, login, password);
             string json = JsonConvert.SerializeObject(configuration);
-            File.WriteAllText(filepath, json);
+            File.WriteAllText(ConfigPath, json);
         }
     }
 }
