@@ -30,56 +30,40 @@ namespace unloadSchedule.Classes
         {
             Action<string> FileName;
             Action<double> Progress;
-            
+
             FileName = isOneDayUnload ? OneDayFile : DefaultFile;
             Progress = isOneDayUnload ? OneDayProgress : DefaultProgress;
 
             string progressPath = ftpHelper.GetProgressPath(isOneDayUnload);
             string schedulePath = ftpHelper.GetSchedulePath();
-            
+
             string[] files = ftpHelper.GetFiles(schedulePath, isOneDayUnload);
-            
+
             string lastUploadedFile = jsonHandler.ReadFile(progressPath);
             double currentProgress = jsonHandler.ReadProgress(progressPath);
-            
+
             bool startUploading = string.IsNullOrEmpty(lastUploadedFile);
             bool fileFound = false;
             double progress = 0;
 
-            using (var ftp = new AsyncFtpClient(ip, login, password))
-            {
-                try
-                {
-                    await ftp.Connect();
-                }
-                catch
-                { MessageBox.Show("Не удалось подключиться к FTP серверу", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);}
+            var ftp = await ftpHelper.ConnectToFtpAsync(ip, login, password);
 
-                foreach (string file in files)
+            foreach (string file in files)
+            {
+                if (!startUploading && !fileFound)
                 {
-                    if (!startUploading && !fileFound)
+                    if (Path.GetFileName(file) == Path.GetFileName(lastUploadedFile))
                     {
-                        if (Path.GetFileName(file) == Path.GetFileName(lastUploadedFile))
-                        {
-                            fileFound = true;
-                            progress = currentProgress;
-                            continue;
-                        }
+                        fileFound = true;
+                        progress = currentProgress;
                         continue;
                     }
-                    
-                    await ftp.UploadFile(file, $"/{Path.GetFileName(file)}", FtpRemoteExists.Overwrite, false, FtpVerify.None);
-                    progress += (1.0 / files.Length) * 100;  
-
-                    if (isOneDayUnload)
-                    {
-                        jsonHandler.SaveJson<OneDayUnload>(file, progress, ftpHelper.jsonFile, FileName, Progress);
-                    }
-                    else
-                    {
-                        jsonHandler.SaveJson<AllUnload>(file, progress, ftpHelper.jsonFile, FileName, Progress);
-                    }
+                    continue;
                 }
+                await ftpHelper.FtpUploader(ftp, file, schedulePath, isOneDayUnload);
+                progress += (1.0 / files.Length) * 100;
+                ftpHelper.SaveProgress(file, progress, isOneDayUnload, FileName, Progress);
+
             }
         }
         public async Task OneDayUnload(bool isOneDayUnload)

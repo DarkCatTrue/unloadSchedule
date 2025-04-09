@@ -5,17 +5,58 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using FluentFTP.Exceptions;
+using FluentFTP;
+using System.Windows;
 using Newtonsoft.Json;
 using unloadSchedule.MVVM.Model;
+using System.Diagnostics;
 
 namespace unloadSchedule.Classes
 {
     public class FtpHelper
     {
+        JsonHandler jsonHandler = new JsonHandler();
         string ConfigPath = AppSettings.ConfigPath;
         string AllUnldPath = AppSettings.AllUnldPath;
         string OneDayUnldPath = AppSettings.OneDayUnldPath;
         public string jsonFile;
+
+        public async Task<AsyncFtpClient> ConnectToFtpAsync(string ip, string login, string password)
+        {
+            var ftp = new AsyncFtpClient(ip, login, password);
+            try
+            {
+                await ftp.Connect();
+                return ftp;
+            }
+            catch (FtpCommandException ex)
+            {
+                MessageBox.Show($"Не удалось подключиться к FTP серверу, ошибка: {ex}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            return null;
+        }
+        public async Task FtpUploader(AsyncFtpClient ftp, string file, string schedulePath, bool isOneDayUnload)
+        {
+            try
+            {
+                await ftp.UploadFile(file, $"/{Path.GetFileName(file)}", FtpRemoteExists.Overwrite, false, FtpVerify.None);
+            }
+            catch (FtpCommandException ex)
+            { MessageBox.Show($"Ошибка загрузки файла: {file} \r Ошибка: {ex}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
+        public void SaveProgress(string file, double progress, bool isOneDayUnload, Action<string> FileName, Action<double> Progress)
+        {
+            if (isOneDayUnload)
+            {
+                jsonHandler.SaveJson<OneDayUnload>(file, progress, jsonFile, FileName, Progress);
+            }
+            else
+            {
+                jsonHandler.SaveJson<AllUnload>(file, progress, jsonFile, FileName, Progress);
+            }
+        }
 
         public string GetProgressPath(bool isOneDayUnload = false)
         {
