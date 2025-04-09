@@ -90,6 +90,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Classes\FtpHelper.cs" />
     <Compile Include="MVVM\Model\AppSettings.cs" />
     <Compile Include="Classes\FtpUnload.cs" />
     <Compile Include="MVVM\Model\JsonHandler.cs" />
