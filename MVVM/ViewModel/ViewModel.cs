@@ -24,7 +24,6 @@ public class ViewModel : INotifyPropertyChanged
     private DispatcherTimer _timer;
     private int _seconds;
     public ICommand GotoSettingsCommand => _commandHandler.GotoSettingsCommand;
-    public ICommand GotoMainCommand => _commandHandler.GotoMainCommand;
     public ICommand UploadCommand { get; set; }
 
     private string _currentFile;

@@ -5,9 +5,15 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:unloadSchedule"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="unloadSchedule.settingsPage"
+      xmlns:userControls="clr-namespace:SharpBoxes.WPFHelpers.UserControls;assembly=SharpBoxes"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="600"
       Title="settingsPage">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Page.Resources>
+
     <Grid Background="#231942">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -28,12 +34,16 @@
         <TextBlock Grid.Row="3" Text="ip" TextAlignment="Center" Foreground="White" Margin="0,4,0,21" Grid.RowSpan="2"/>
         <TextBlock Grid.Row="4" Text="Логин" TextAlignment="Center" Foreground="White" Margin="0,4,0,21" Grid.RowSpan="2"/>
         <TextBlock Grid.Row="5" Text="Пароль" TextAlignment="Center" Foreground="White" Margin="0,4,0,41" Grid.RowSpan="2"/>
-        <TextBox x:Name="pathBox" Grid.Column="1" Grid.Row="2" TextAlignment="Left" Foreground="White"/>
-        <TextBox x:Name="ipBox" Grid.Column="1" Grid.Row="3" TextAlignment="Left" Foreground="White"/>
-        <TextBox x:Name="loginBox" Grid.Column="1" Grid.Row="4" TextAlignment="Left" Foreground="White"/>
-        <PasswordBox x:Name="passwordBox" Grid.Column="1" Grid.Row="5" HorizontalContentAlignment="Left" Foreground="White" PasswordChar="*" PasswordChanged="passwordBox_PasswordChanged" Visibility="Visible" Width="275" HorizontalAlignment="Left"/>
-        <TextBox x:Name="textBox" Grid.Column="1" Grid.Row="5" HorizontalContentAlignment="Left" Foreground="White" Width="275" HorizontalAlignment="Left" Visibility="Collapsed" IsReadOnly="True"/>
-        <Image x:Name="PassIcon" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Right" Width="25" Source="/Icons/HiddenPassBtn.png" RenderOptions.BitmapScalingMode="HighQuality" Margin="0 4 0 41" Grid.RowSpan="2" MouseDown="PassIcon_MouseDown"/>
-        <Button x:Name="saveBtn" Grid.Row="6" Grid.ColumnSpan="2" Content="Сохранить" VerticalAlignment="Center" Click="saveBtn_Click"/>
+        <TextBox x:Name="PathBox" Grid.Column="1" Grid.Row="2" TextAlignment="Left" Text="{Binding PathBox}" Foreground="White"/>
+        <TextBox x:Name="IpBox" Grid.Column="1" Grid.Row="3" Text="{Binding IpBox}" TextAlignment="Left" Foreground="White"/>
+        <TextBox x:Name="LoginBox" Grid.Column="1" Text="{Binding LoginBox}" Grid.Row="4" TextAlignment="Left" Foreground="White"/>
+        <userControls:BindablePasswordBox x:Name="PasswordBox" Password="{Binding PasswordBox, Mode=TwoWay}" Grid.Column="1" Grid.Row="5" Foreground="White" Visibility="{Binding IsPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Reverse}" Margin="0,0,25,0" />
+        <TextBox x:Name="textBox" Text="{Binding TextBox, Mode=OneWay}" Grid.Column="1" Grid.Row="5" HorizontalContentAlignment="Left" Foreground="White" Width="275"  HorizontalAlignment="Left" Visibility="{Binding IsTextVisible, Converter={StaticResource BoolToVisibilityConverter}}" IsReadOnly="True"/>
+        <Image x:Name="PassIcon" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Right" Width="25" Source="{Binding EyeIcon}" RenderOptions.BitmapScalingMode="HighQuality" Margin="0 4 0 41" Grid.RowSpan="2">
+            <Image.InputBindings>
+                <MouseBinding MouseAction="LeftClick" Command="{Binding TogglePasswordCommand}"/>
+            </Image.InputBindings>
+        </Image>
+        <Button x:Name="saveBtn" Grid.Row="6" Grid.ColumnSpan="2" Content="Сохранить" VerticalAlignment="Center" Command="{Binding SaveConfig}"/>
     </Grid>
 </Page>
