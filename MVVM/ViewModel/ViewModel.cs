@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Security.RightsManagement;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using unloadSchedule.Classes;
@@ -15,7 +16,6 @@ public class ViewModel : INotifyPropertyChanged
     FtpUnload ftpUnload = new FtpUnload();
     JsonHandler jsonHandler = new JsonHandler();
 
-
     public string ConfigPath = AppSettings.ConfigPath;
     public string AllUnldPath = AppSettings.AllUnldPath;
     public string OneDayUnldPath = AppSettings.OneDayUnldPath;
@@ -25,6 +25,8 @@ public class ViewModel : INotifyPropertyChanged
     private int _seconds;
     public ICommand GotoSettingsCommand => _commandHandler.GotoSettingsCommand;
     public ICommand UploadCommand { get; set; }
+
+    public ICommand ScheduleIsChecked { get; }
 
     private string _currentFile;
 
@@ -37,6 +39,77 @@ public class ViewModel : INotifyPropertyChanged
     private double _uploadProgress;
 
     private string _uploadPercentage;
+
+    private string _timeReservText;
+
+    private string _datePickerText;
+
+    private bool _timeReservIsEnabled;
+
+    private bool _datePickerIsEnabled;
+
+    private bool _unloadListVisibility;
+
+    private bool _firstListVisibility;
+
+    private bool _secondListVisbility;
+
+    private bool _thirdListVisibility;
+
+    private bool _isScheduled;
+    public bool IsScheduled
+    {
+        get => _isScheduled;
+        set
+        {
+            if (_isScheduled != value)
+            {
+                _isScheduled = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public string DatePickerText
+    {
+        get => _datePickerText; set { _datePickerText = value; OnPropertyChanged(); }
+    }
+
+    public string TimeReservText
+    {
+        get => _timeReservText; set { _timeReservText = value; OnPropertyChanged(); }
+    }
+
+    public bool FirstListVisibility
+    {
+        get => _firstListVisibility; set { _firstListVisibility = value; OnPropertyChanged(); }
+    }
+
+    public bool SecondListVisbility
+    {
+        get => _secondListVisbility; set { _secondListVisbility = value; OnPropertyChanged(); }
+    }
+
+    public bool ThirdListVisibility
+    {
+        get => _thirdListVisibility; set { _thirdListVisibility = value; OnPropertyChanged(); }
+    }
+
+
+    public bool UnloadListVisibility
+    {
+        get => _unloadListVisibility; set { _unloadListVisibility = value; OnPropertyChanged(); }
+    }
+
+    public bool DatePickerIsEnabled
+    {
+        get => _datePickerIsEnabled; set { _datePickerIsEnabled = value; OnPropertyChanged(); }
+    }
+
+    public bool TimeReservIsEnabled
+    {
+        get => _timeReservIsEnabled; set { _timeReservIsEnabled = value; OnPropertyChanged(); }
+    }
 
     public double UploadProgress
     {
@@ -79,7 +152,41 @@ public class ViewModel : INotifyPropertyChanged
         _timer.Tick += TimerTick;
         UploadCommand = new RelayCommand(async () => await CheckRadioButton());
         _commandHandler = new CommandHandler();
+        ScheduleIsChecked = new RelayCommand(() =>
+        {
+            if (IsScheduled)
+            {
+                ScheduleUnload_checked();
+            }
+            else
+            {
+                ScheduleUnload_unchecked();
+            }
+        });
     }
+
+    private void ScheduleUnload_checked()
+    {
+        TimeReservIsEnabled = true;
+        DatePickerIsEnabled = true;
+        UnloadListVisibility = true;
+        FirstListVisibility = true;
+        SecondListVisbility = true;
+        ThirdListVisibility = true;
+    }
+
+    private void ScheduleUnload_unchecked()
+    {
+        TimeReservIsEnabled = false;
+        DatePickerIsEnabled = false;
+        TimeReservText = string.Empty;
+        DatePickerText = string.Empty;
+        UnloadListVisibility = false;
+        FirstListVisibility = false;
+        SecondListVisbility = false;
+        ThirdListVisibility = false;
+    }
+
 
     public async Task StartDefaultUnload()
     {

@@ -4,10 +4,15 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
-      xmlns:local="clr-namespace:unloadSchedule"
+      xmlns:local="clr-namespace:unloadSchedule" xmlns:viewmodel="clr-namespace:unloadSchedule.MVVM.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:SettingsViewModel}"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="600"
       Title="Main">
+
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Page.Resources>
+
     <Grid Background="#231942">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -28,18 +33,19 @@
         <RadioButton x:Name="partialUnload" Grid.Row="1" Content="Выгрузка 1 день" IsChecked="{Binding unloadTomorrow}" Foreground="White" Margin="0,43,0,9" Grid.RowSpan="2"/>
         <RadioButton x:Name="fullUnload" Grid.Column="1" Grid.Row="1" Content="Полная выгрузка" IsChecked="{Binding unloadFull}" Foreground="White" Margin="0,43,0,9" Grid.RowSpan="2"/>
         <TextBlock Grid.Row="2" Grid.Column="2" Text="Запланировать" Margin="5,6,55,11" Foreground="White"/>
-        <ToggleButton  x:Name="scheduledUnload" Grid.Column="2" Grid.Row="1" Margin="106,42,10,2" Grid.RowSpan="2" Checked="scheduledUnload_Checked" Unchecked="scheduledUnload_Unchecked"/>
-        <DatePicker x:Name="datePicker" Grid.Column="3" Grid.Row="2" IsEnabled="False" Language="Ru" Foreground="White" Margin="70,0,0,13"/>
-        <md:TimePicker x:Name="timeReserv" Grid.Column="3" Grid.Row="2" IsEnabled="False" Is24Hours="True"  Foreground="White" Margin="0,0,85,13"/>
+        <ToggleButton  x:Name="scheduledUnload" Grid.Column="2" Grid.Row="1" Margin="106,42,10,2" Grid.RowSpan="2" IsChecked="{Binding IsScheduled, Mode=TwoWay}"
+            Command="{Binding ScheduleIsChecked}"/>
+        <DatePicker x:Name="datePicker" Grid.Column="3" Grid.Row="2" IsEnabled="{Binding DatePickerIsEnabled}" Text="{Binding DatePickerText}" Language="Ru" Foreground="White" Margin="70,0,0,13"/>
+        <md:TimePicker x:Name="timeReserv" Grid.Column="3" Grid.Row="2" IsEnabled="{Binding TimeReservIsEnabled}" Is24Hours="True" Text="{Binding TimeReservText}"  Foreground="White" Margin="0,0,85,13"/>
         <Button x:Name="unloadBtn" Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="2" Command="{Binding UploadCommand}" Content="Начать" VerticalAlignment="Top" Margin="0,29,0,0" Grid.RowSpan="2"/>
         <TextBlock x:Name="latestFile" Grid.Row="4" Grid.Column="2" Text="{Binding CurrentFile}" TextAlignment="Center" Foreground="White" VerticalAlignment="Top"/>
         <ProgressBar x:Name="progressBar" Value ="{Binding UploadProgress}" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,30,35"/>
         <TextBlock x:Name="percentCount" Grid.Row="4" Grid.Column="1" Text="{Binding UploadPercentage}" TextAlignment="Center" Foreground="White" Margin="122,0,148,3" Grid.ColumnSpan="2"/>
         <TextBlock x:Name="latestTime" Grid.Row="4" Grid.Column="3" Text="{Binding ElapsedTime}" TextAlignment="Center" Foreground="White" Margin="0,0,0,25"/>
-        <TextBlock x:Name="unloadList" Grid.Row="5" Grid.Column="0" Text="Запланировано:" Foreground="White" HorizontalAlignment="Center" Height="20" VerticalAlignment="Center" Visibility="Collapsed"/>
-        <TextBlock x:Name="FirstList" Grid.Row="5" Grid.Column="1" Text="1." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="Collapsed"/>
-        <TextBlock x:Name="SecondList" Grid.Row="5" Grid.Column="2" Text="2." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="Collapsed"/>
-        <TextBlock x:Name="ThirdList" Grid.Row="5" Grid.Column="3" Text="3." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="Collapsed"/>
+        <TextBlock x:Name="unloadList" Grid.Row="5" Grid.Column="0" Text="Запланировано:" Foreground="White" HorizontalAlignment="Center" Height="20" VerticalAlignment="Center" Visibility="{Binding UnloadListVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <TextBlock x:Name="FirstList" Grid.Row="5" Grid.Column="1" Text="1." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="{Binding FirstListVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <TextBlock x:Name="SecondList" Grid.Row="5" Grid.Column="2" Text="2." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="{Binding SecondListVisbility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <TextBlock x:Name="ThirdList" Grid.Row="5" Grid.Column="3" Text="3." HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" Visibility="{Binding ThirdListVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
         <Frame x:Name="settingsFrame" Panel.ZIndex="100" Height="100"/>
     </Grid>
 </Page>
