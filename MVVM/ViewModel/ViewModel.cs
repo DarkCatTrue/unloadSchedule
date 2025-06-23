@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Security.RightsManagement;
 using System.Threading.Tasks;
@@ -44,6 +46,8 @@ public class ViewModel : INotifyPropertyChanged
 
     private string _datePickerText;
 
+    private string _scheduleName;
+
     private bool _timeReservIsEnabled;
 
     private bool _datePickerIsEnabled;
@@ -68,6 +72,11 @@ public class ViewModel : INotifyPropertyChanged
                 OnPropertyChanged();
             }
         }
+    }
+
+    public string ScheduleName
+    {
+        get => _scheduleName; set { _scheduleName = value; OnPropertyChanged(); }
     }
 
     public string DatePickerText
@@ -147,6 +156,7 @@ public class ViewModel : INotifyPropertyChanged
 
     public ViewModel()
     {
+        LoadScheduleDate();
         _timer = new DispatcherTimer();
         _timer.Interval = TimeSpan.FromSeconds(1);
         _timer.Tick += TimerTick;
@@ -262,6 +272,20 @@ public class ViewModel : INotifyPropertyChanged
             case MessageBoxResult.Cancel:
                 return;
         }
+    }
+
+    private async Task LoadScheduleDate()
+    {
+        ParseSchedule parseSchedule = new ParseSchedule();
+        try
+        {
+            string jsonFile = File.ReadAllText(ConfigPath);
+            dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
+            string filepath = json.SchedulePath;
+            ScheduleName = "Выгрузка на " + await parseSchedule.ParseScheduleDay(filepath);
+        }
+        catch
+        { }
     }
 
     public async Task CheckRadioButton()
