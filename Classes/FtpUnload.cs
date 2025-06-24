@@ -66,7 +66,7 @@ namespace unloadSchedule.Classes
 
             }
         }
-        public async Task OneDayUnload(bool isOneDayUnload)
+        public async Task Unload(bool isOneDayUnload)
         {
             string jsonFile = File.ReadAllText(ConfigPath);
             dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
