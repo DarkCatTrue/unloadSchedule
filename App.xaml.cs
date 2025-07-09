@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using NLog;
 
 namespace unloadSchedule
 {
@@ -13,5 +14,19 @@ namespace unloadSchedule
     /// </summary>
     public partial class App : Application
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            Logger.Info("=== Запуск приложения ===");
+            base.OnStartup(e);
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            Logger.Info("=== Завершение работы ===");
+            LogManager.Shutdown();
+            base.OnExit(e);
+        }
     }
 }

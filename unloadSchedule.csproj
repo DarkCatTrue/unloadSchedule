@@ -76,6 +76,9 @@
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="NLog, Version=6.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>packages\NLog.6.0.1\lib\net46\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="SharpBoxes, Version=1.0.0.8, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\SharpBoxes.1.0.9\lib\net48\SharpBoxes.dll</HintPath>
     </Reference>
@@ -86,6 +89,7 @@
     <Reference Include="System.CodeDom, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.CodeDom.8.0.0\lib\net462\System.CodeDom.dll</HintPath>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -181,6 +185,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="NLog.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
