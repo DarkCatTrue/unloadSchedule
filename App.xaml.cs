@@ -1,11 +1,15 @@
-﻿using System;
+﻿using NLog;
+using NLog.Config;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
-using NLog;
+using System.Xml;
 
 namespace unloadSchedule
 {
@@ -18,7 +22,11 @@ namespace unloadSchedule
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            Logger.Info("=== Запуск приложения ===");
+            LoadNLogConfig();
+
+            var logger = LogManager.GetCurrentClassLogger();
+            logger.Info("=== Программа запущена ===");
+
             base.OnStartup(e);
         }
 
@@ -27,6 +35,31 @@ namespace unloadSchedule
             Logger.Info("=== Завершение работы ===");
             LogManager.Shutdown();
             base.OnExit(e);
+        }
+        private void LoadNLogConfig()
+        {
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var resourceName = "unloadSchedule.NLog.config";
+
+                using (var stream = assembly.GetManifestResourceStream(resourceName))
+                {
+                    if (stream == null)
+                        throw new FileNotFoundException("Ресурс NLog.config не найден!");
+
+                    LogManager.Configuration = new XmlLoggingConfiguration(XmlReader.Create(stream), null);
+                }
+            }
+            catch (Exception ex)
+            {
+                var config = new LoggingConfiguration();
+                var consoleTarget = new NLog.Targets.ConsoleTarget("console");
+                config.AddRule(LogLevel.Info, LogLevel.Fatal, consoleTarget);
+                LogManager.Configuration = config;
+
+                Console.WriteLine($"Ошибка загрузки NLog.config: {ex.Message}");
+            }
         }
     }
 }

@@ -200,7 +200,7 @@ public class ViewModel : INotifyPropertyChanged
 
     public async Task StartDefaultUnload()
     {
-        bool OnedayUnload = false;
+        bool OnedayUnload;
 
         Action<string> fileHandler = fileName => CurrentFile = fileName;
         Action<double> progressHandler = progress => UploadProgress = progress;
@@ -218,7 +218,7 @@ public class ViewModel : INotifyPropertyChanged
                 _timer.Start();
 
                 jsonHandler.SaveJson<AllUnload>("ba.htm", 0, AllUnldPath, fileHandler, progressHandler);
-                await ftpUnload.Unload(OnedayUnload);
+                await ftpUnload.Unload(OnedayUnload = false);
 
                 _timer.Stop();
                 MessageBox.Show("Выгрузка всех файлов завершилась!", "Состояние загрузки", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -228,7 +228,7 @@ public class ViewModel : INotifyPropertyChanged
 
                 _timer.Start();
 
-                await ftpUnload.Unload(OnedayUnload);
+                await ftpUnload.Unload(OnedayUnload = false);
 
                 _timer.Stop();
                 MessageBox.Show("Выгрузка всех файлов завершилась!", "Состояние загрузки", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -240,7 +240,7 @@ public class ViewModel : INotifyPropertyChanged
     }
     public async Task StartOneDayUnload()
     {
-        bool OneDayUnload = true;
+        bool OneDayUnload;
 
         Action<string> fileHandler = fileName => CurrentFile = fileName;
         Action<double> progressHandler = progress => UploadProgress = progress;
@@ -257,7 +257,7 @@ public class ViewModel : INotifyPropertyChanged
                 _timer.Start();
 
                 jsonHandler.SaveJson<OneDayUnload>("ca.htm", 0, OneDayUnldPath, fileHandler, progressHandler);
-                await ftpUnload.Unload(OneDayUnload);
+                await ftpUnload.Unload(OneDayUnload = true);
 
                 _timer.Stop();
                 MessageBox.Show("Выгрузка всех файлов завершилась!", "Состояние загрузки", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -267,7 +267,7 @@ public class ViewModel : INotifyPropertyChanged
 
                 _timer.Start();
 
-                await ftpUnload.Unload(OneDayUnload);
+                await ftpUnload.Unload(OneDayUnload = true);
 
                 _timer.Stop();
                 MessageBox.Show("Выгрузка всех файлов завершилась!", "Состояние загрузки", MessageBoxButton.OK, MessageBoxImage.Information);

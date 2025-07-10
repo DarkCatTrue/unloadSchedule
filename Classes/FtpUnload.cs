@@ -1,6 +1,7 @@
 ﻿using FluentFTP;
 using FluentFTP.Exceptions;
 using Newtonsoft.Json;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +15,8 @@ namespace unloadSchedule.Classes
 {
     public class FtpUnload
     {
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
         FtpHelper ftpHelper = new FtpHelper();
         JsonHandler jsonHandler = new JsonHandler();
 
@@ -28,6 +31,7 @@ namespace unloadSchedule.Classes
         public Action<double> DefaultProgress;
         public async Task UnloadFiles(string ip, string login, string password, bool isOneDayUnload)
         {
+            int waitTime = 1;
             Action<string> FileName = isOneDayUnload ? OneDayFile : DefaultFile;
             Action<double> Progress = isOneDayUnload ? OneDayProgress : DefaultProgress;
 
@@ -48,13 +52,14 @@ namespace unloadSchedule.Classes
                         {
                             ftp = new AsyncFtpClient(ip, login, password);
                             await ftp.Connect();
+                            Logger.Info("Подключение к FTP серверу успешно выполнено.");
                             break;
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Ошибка подключения: {ex.Message}. Повтор через 1 минуту.",
-                                         "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            await Task.Delay(TimeSpan.FromMinutes(1));
+                            Logger.Error("Ошибка подключения к FTP серверу", ex);
+                            Logger.Warn($"Попытка подключения к FTP серверу начнётся через: {waitTime} минут");
+                            await Task.Delay(TimeSpan.FromMinutes(waitTime));
                         }
                     }
 
@@ -78,7 +83,6 @@ namespace unloadSchedule.Classes
                             try
                             {
                                 await ftp.UploadFile(file, $"/{Path.GetFileName(file)}", FtpRemoteExists.Overwrite, false, FtpVerify.None);
-
                                 currentProgress += (1.0 / files.Length) * 100;
                                 ftpHelper.SaveProgress(file, currentProgress, isOneDayUnload, FileName, Progress);
                                 lastUploadedFile = file;
@@ -86,28 +90,45 @@ namespace unloadSchedule.Classes
                             }
                             catch (Exception ex)
                             {
-                                MessageBox.Show($"Ошибка загрузки {Path.GetFileName(file)}: {ex.Message}. Повтор через 1 минуту.",
-                                              "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                                await Task.Delay(TimeSpan.FromMinutes(1));
-
-                                try { await ftp.Connect(); } catch {}
+                                Logger.Error("При передаче файлов на FTP сервер произошла ошибка:", ex);
+                                Logger.Warn($"Попытка продолжить загрузку файлов начнётся через: {waitTime} минут");
+                                await Task.Delay(TimeSpan.FromMinutes(waitTime));
+                                try
+                                {
+                                    await ftp.Connect();
+                                    Logger.Info("Подключение к FTP серверу успешно восстановлено.");
+                                }
+                                catch (Exception e) 
+                                {
+                                    Logger.Error($"Ошибка подключения к FTP серверу после прерванной загрузки: {e}");
+                                }
                             }
                         }
                     }
                     ftpHelper.SaveProgress("", 0, isOneDayUnload, FileName, Progress);
+                    Logger.Info("Выгрузка полностью закончена, прогресс загрузки сброшен.");
                     return;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Критическая ошибка: {ex.Message}. Повтор через 1 минуту.",
-                                  "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    await Task.Delay(TimeSpan.FromMinutes(1));
+                    Logger.Error("Критическая ошибка", ex);
+                    Logger.Warn($"Попытка восстановления начнётся через: {waitTime}");
+                    await Task.Delay(TimeSpan.FromMinutes(waitTime));
                 }
                 finally
                 {
                     if (ftp != null)
                     {
-                        try { await ftp.Disconnect(); } catch {}
+                        try
+                        {
+                            await ftp.Disconnect();
+                            Logger.Info("Закрытие соединения с FTP сервером, после окончания загрузки.");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error("Ошибка закрытия соединения с FTP сервером:", ex);
+                        }
+
                     }
                 }
             }
@@ -118,14 +139,20 @@ namespace unloadSchedule.Classes
             dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
             try
             {
+                Logger.Info("Сбор информации о FTP сервере.");
+
                 string path = json.SchedulePath;
                 string ip = json.Ip;
                 string login = json.Login;
                 string password = json.Password;
                 await UnloadFiles(ip, login, password, isOneDayUnload);
+                Logger.Info("Выгрузка успешно завершена.");
             }
-            catch
-            { MessageBox.Show("Не найдены данные для начала выгрузки!", "Ввод данных", MessageBoxButton.OK, MessageBoxImage.Error); }
+
+            catch (Exception ex)
+            {
+                Logger.Error("Ошибка начала загрузки:", ex);
+            }
         }
     }
 }

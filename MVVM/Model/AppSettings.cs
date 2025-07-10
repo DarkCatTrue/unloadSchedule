@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,31 +26,31 @@ namespace unloadSchedule.Classes
 
         string thirdScheduleFolder = $"{ScheduleFolders}\\Third";
 
+        string logsFolder = @"Logs";
+
         public void InitializeFolders()
         {
-            if (!Directory.Exists(pathConfig))
-                Directory.CreateDirectory(pathConfig);
+
+            Directory.CreateDirectory(pathConfig);
+
+            Directory.CreateDirectory(logsFolder);
+
+            Directory.CreateDirectory(ScheduleFolders);
+
+            Directory.CreateDirectory(firstScheduleFolder);
+
+            Directory.CreateDirectory(secondScheduleFolder);
+
+            Directory.CreateDirectory(thirdScheduleFolder);
 
             if (!File.Exists(ConfigPath))
-                File.Create(ConfigPath);
+                File.Create(ConfigPath).Dispose();
 
             if (!File.Exists(OneDayUnldPath))
-                File.Create(OneDayUnldPath);
+                File.Create(OneDayUnldPath).Dispose();
 
             if (!File.Exists(AllUnldPath))
-                File.Create(AllUnldPath);
-
-            if (!Directory.Exists(ScheduleFolders))
-                Directory.CreateDirectory(ScheduleFolders);
-
-            if (!Directory.Exists(firstScheduleFolder))
-                Directory.CreateDirectory(firstScheduleFolder);
-
-            if (!Directory.Exists(secondScheduleFolder))
-                Directory.CreateDirectory(secondScheduleFolder);
-
-            if (!Directory.Exists(thirdScheduleFolder))
-                Directory.CreateDirectory(thirdScheduleFolder);
+                File.Create(AllUnldPath).Dispose();
         }
     }
 }

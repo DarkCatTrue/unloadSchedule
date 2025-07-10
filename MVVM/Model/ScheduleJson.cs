@@ -12,6 +12,6 @@ namespace unloadSchedule.MVVM.Model
         public string FirstSchedule { get; set; }
         public string SecondSchedule { get; set; }
         public string ThirdSchedule { get; set; }   
-
+        
     }
 }
