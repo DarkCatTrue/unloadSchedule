@@ -128,19 +128,29 @@
     </ApplicationDefinition>
     <Compile Include="Classes\FtpHelper.cs" />
     <Compile Include="Classes\ParseSchedule.cs" />
+    <Compile Include="Classes\TimerToRunSchedule.cs" />
     <Compile Include="MVVM\Model\AppSettings.cs" />
     <Compile Include="Classes\FtpUnload.cs" />
+    <Compile Include="MVVM\Model\DataGridRowItem.cs" />
     <Compile Include="MVVM\Model\JsonHandler.cs" />
+    <Compile Include="MVVM\Model\Queue.cs" />
     <Compile Include="MVVM\ViewModel\PageManager.cs" />
     <Compile Include="MVVM\Model\AllUnload.cs" />
     <Compile Include="MVVM\Model\ScheduleJson.cs" />
     <Compile Include="MVVM\Model\OneDayUnload.cs" />
     <Compile Include="MVVM\ViewModel\CommandHandler.cs" />
+    <Compile Include="MVVM\ViewModel\QueueModel.cs" />
     <Compile Include="MVVM\ViewModel\RelayCommand.cs" />
     <Compile Include="MVVM\ViewModel\SettingsViewModel.cs" />
     <Compile Include="MVVM\ViewModel\ViewModel.cs" />
     <Compile Include="MVVM\View\Main.xaml.cs">
       <DependentUpon>Main.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MVVM\View\QueuePage.xaml.cs">
+      <DependentUpon>QueuePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MVVM\View\QueueWindow.xaml.cs">
+      <DependentUpon>QueueWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MVVM\View\settingsPage.xaml.cs">
       <DependentUpon>settingsPage.xaml</DependentUpon>
@@ -162,6 +172,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="MVVM\View\QueuePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MVVM\View\QueueWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MVVM\View\settingsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

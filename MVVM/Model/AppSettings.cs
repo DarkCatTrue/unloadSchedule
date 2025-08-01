@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Newtonsoft.Json;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,23 +11,20 @@ namespace unloadSchedule.Classes
 {
     public class AppSettings
     {
+
         public const string ConfigPath = @"Jsons\configuration.json";
+
+        public const string QueuePath = @"Jsons\queue.txt";
 
         public const string AllUnldPath = @"Jsons\AllUnload.json";
 
         public const string OneDayUnldPath = @"Jsons\OneDayUnload.json";
 
-        static string ScheduleFolders = "ScheduleFolders";
-        
+        public const string ScheduleFolders = "ScheduleFolders";
+
         string pathConfig = "Jsons";
 
-        string firstScheduleFolder = $"{ScheduleFolders}\\First";
-
-        string secondScheduleFolder = $"{ScheduleFolders}\\Second";
-
-        string thirdScheduleFolder = $"{ScheduleFolders}\\Third";
-
-        string logsFolder = @"Logs";
+        string logsFolder = "Logs";
 
         public void InitializeFolders()
         {
@@ -37,12 +35,6 @@ namespace unloadSchedule.Classes
 
             Directory.CreateDirectory(ScheduleFolders);
 
-            Directory.CreateDirectory(firstScheduleFolder);
-
-            Directory.CreateDirectory(secondScheduleFolder);
-
-            Directory.CreateDirectory(thirdScheduleFolder);
-
             if (!File.Exists(ConfigPath))
                 File.Create(ConfigPath).Dispose();
 
@@ -51,6 +43,9 @@ namespace unloadSchedule.Classes
 
             if (!File.Exists(AllUnldPath))
                 File.Create(AllUnldPath).Dispose();
+
+            if (!File.Exists(QueuePath))
+                File.Create(QueuePath).Dispose();
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using MaterialDesignThemes.Wpf;
+using Newtonsoft.Json;
+using NLog;
 using System;
+using System.Globalization;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -12,15 +15,23 @@ using System.Windows.Threading;
 using unloadSchedule.Classes;
 using unloadSchedule.MVVM.Model;
 using unloadSchedule.MVVM.ViewModel;
+using unloadSchedule.MVVM.View;
+using ICSharpCode.SharpZipLib.Zip;
 
 public class ViewModel : INotifyPropertyChanged
 {
     FtpUnload ftpUnload = new FtpUnload();
     JsonHandler jsonHandler = new JsonHandler();
+    public static string QueuePath = AppSettings.QueuePath;
+
+    Queue queue = new Queue(QueuePath);
 
     public string ConfigPath = AppSettings.ConfigPath;
     public string AllUnldPath = AppSettings.AllUnldPath;
     public string OneDayUnldPath = AppSettings.OneDayUnldPath;
+    public string ScheduleFolders = AppSettings.ScheduleFolders;
+
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
     private CommandHandler _commandHandler;
     private DispatcherTimer _timer;
@@ -30,6 +41,10 @@ public class ViewModel : INotifyPropertyChanged
 
     public ICommand ScheduleIsChecked { get; }
 
+    public ICommand queueCommand { get; set; }
+
+    public ICommand EditQueue { get; set; }
+
     private string _currentFile;
 
     private string _elapsedTime;
@@ -38,15 +53,23 @@ public class ViewModel : INotifyPropertyChanged
 
     private bool _unloadFull;
 
+    private bool _progressBarVisibility;
+
     private double _uploadProgress;
 
     private string _uploadPercentage;
 
     private string _timeReservText;
 
-    private string _datePickerText;
+    private DateTime? _datePickerText;
 
     private string _scheduleName;
+
+    private string _firstListText;
+
+    private string _secondListText;
+
+    private string _thirdListText;
 
     private bool _timeReservIsEnabled;
 
@@ -61,6 +84,17 @@ public class ViewModel : INotifyPropertyChanged
     private bool _thirdListVisibility;
 
     private bool _isScheduled;
+
+    private bool _queueUnloadVisibility;
+
+    public bool ProgressBarVisibility
+    {
+        get => _progressBarVisibility; set { _progressBarVisibility = value; OnPropertyChanged(); }
+    }
+    public bool queueUnloadVisibility
+    {
+        get => _queueUnloadVisibility; set { _queueUnloadVisibility = value; OnPropertyChanged(); }
+    }
     public bool IsScheduled
     {
         get => _isScheduled;
@@ -74,12 +108,28 @@ public class ViewModel : INotifyPropertyChanged
         }
     }
 
+
+    public string FirstListText
+    {
+        get => _firstListText; set { _firstListText = value; OnPropertyChanged(); }
+    }
+
+    public string SecondListText
+    {
+        get => _secondListText; set { _secondListText = value; OnPropertyChanged(); }
+    }
+
+    public string ThirdListText
+    {
+        get => _thirdListText; set { _thirdListText = value; OnPropertyChanged(); }
+    }
+
     public string ScheduleName
     {
         get => _scheduleName; set { _scheduleName = value; OnPropertyChanged(); }
     }
 
-    public string DatePickerText
+    public DateTime? DatePickerText
     {
         get => _datePickerText; set { _datePickerText = value; OnPropertyChanged(); }
     }
@@ -161,7 +211,9 @@ public class ViewModel : INotifyPropertyChanged
         _timer.Interval = TimeSpan.FromSeconds(1);
         _timer.Tick += TimerTick;
         UploadCommand = new RelayCommand(async () => await CheckRadioButton());
+        queueCommand = new RelayCommand(async () => await planAdd());
         _commandHandler = new CommandHandler();
+        EditQueue = new RelayCommand(OpenQueue);
         ScheduleIsChecked = new RelayCommand(() =>
         {
             if (IsScheduled)
@@ -174,7 +226,50 @@ public class ViewModel : INotifyPropertyChanged
             }
         });
     }
-
+    public void planScheduleUnload()
+    {
+        string[] DateInfo = queue.GetTimerInfo();
+        string date = DateInfo[1];
+        string time = DateInfo[2];
+        DateTime datePart = DateTime.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+        TimeSpan timePart = TimeSpan.ParseExact(time, "h\\:mm", CultureInfo.InvariantCulture);
+        DateTime FullDate = datePart.Add(timePart);
+        TimerToRunSchedule timer = new TimerToRunSchedule();
+        timer.Timer(queue.ReturnCopySchedule(), StartUpload: StartPlanUnload, targetTime: FullDate);
+    }
+    public void OpenQueue()
+    {
+        QueueWindow queueWindow = new QueueWindow();
+        queueWindow.Show();
+    }
+    private async Task planAdd()
+    {
+        ParseSchedule parseSchedule = new ParseSchedule();
+        DateTime Date = Convert.ToDateTime(DatePickerText);
+        string DateText = Date.ToString("yyyy-MM-dd");
+        string TimeText = TimeReservText;
+        if (queue.CheckDate(DateText, TimeText))
+        {
+            string queueFolder = $"ScheduleFolders\\{DateText}";
+            Directory.CreateDirectory(queueFolder);
+            try
+            {
+                string jsonFile = File.ReadAllText(ConfigPath);
+                dynamic json = JsonConvert.DeserializeObject<dynamic>(jsonFile);
+                string filepath = json.SchedulePath;
+                string dateSchedule = await parseSchedule.ParseScheduleDay(filepath);
+                queue.CopySchedulePlan(filepath, queueFolder);
+                await queue.AddEntryAsync(dateSchedule, DateText, TimeText);
+                await queue.UpdateFileWithSortedEntriesAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Не удалось определить дату расписания, проверьте директорию с расписанием.", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                Logger.Error($"Ошибка при определении даты расписания, для дальнейшей планировки выгрузки: {ex}");
+            }
+        }
+    }
     private void ScheduleUnload_checked()
     {
         TimeReservIsEnabled = true;
@@ -183,20 +278,40 @@ public class ViewModel : INotifyPropertyChanged
         FirstListVisibility = true;
         SecondListVisbility = true;
         ThirdListVisibility = true;
+        queueUnloadVisibility = true;
     }
 
     private void ScheduleUnload_unchecked()
     {
+        DatePickerText = null;
         TimeReservIsEnabled = false;
         DatePickerIsEnabled = false;
         TimeReservText = string.Empty;
-        DatePickerText = string.Empty;
         UnloadListVisibility = false;
         FirstListVisibility = false;
         SecondListVisbility = false;
         ThirdListVisibility = false;
+        queueUnloadVisibility = false;
     }
+    public async Task StartPlanUnload()
+    {
+        bool OnedayUnload;
 
+        Action<string> fileHandler = fileName => CurrentFile = fileName;
+        Action<double> progressHandler = progress => UploadProgress = progress;
+
+        ftpUnload.DefaultFile += fileHandler;
+        ftpUnload.DefaultProgress += progressHandler;
+        _seconds = 0;
+
+        _timer.Start();
+
+        jsonHandler.SaveJson<AllUnload>("ba.htm", 0, AllUnldPath, fileHandler, progressHandler);
+        await ftpUnload.Unload(OnedayUnload = false);
+
+        _timer.Stop();
+
+    }
 
     public async Task StartDefaultUnload()
     {
@@ -294,6 +409,7 @@ public class ViewModel : INotifyPropertyChanged
 
     public async Task CheckRadioButton()
     {
+        ProgressBarVisibility = true;
         if (unloadOneDay)
         {
             await StartOneDayUnload();
